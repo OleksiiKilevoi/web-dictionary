@@ -33,15 +33,15 @@ class CsvController extends Controller {
     try {
       const { files } = req.files!;
 
-      const movies = files as unknown as fileUpload.UploadedFile;
+      const file = files as unknown as fileUpload.UploadedFile;
 
       if (!fs.existsSync(`${this.UPLOADS_PATH || '/storage'}`)) {
         fs.mkdirSync(`${this.UPLOADS_PATH || '/storage'}`);
       }
 
-      const destination = `${this.UPLOADS_PATH || '/storage'}/${movies.name}`;
+      const destination = `${this.UPLOADS_PATH || '/storage'}/${file.name}`;
 
-      movies.mv(destination);
+      file.mv(destination);
 
       return res.status(200).json(okResponse());
     } catch (e: unknown) {

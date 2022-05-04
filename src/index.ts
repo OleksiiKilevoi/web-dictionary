@@ -12,7 +12,7 @@ import Projects from './database/repositories/Projects';
 import ProjectTable from './database/ProjectTable';
 
 const main = async () => {
-  const db = await new DbConnector().connectionString('postgresql://postgres:2131@localhost:5432/admin').connect();
+  const db = await new DbConnector().connectionString(process.env.DB).connect();
 
   await drizzle.migrator(db).migrate({ migrationFolder: './drizzle' });
 
