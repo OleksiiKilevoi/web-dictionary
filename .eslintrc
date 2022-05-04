@@ -1,0 +1,27 @@
+{
+    "extends": ["airbnb-typescript/base"],
+    "plugins": ["prefer-arrow"],
+    "parserOptions": {
+        "project": "./tsconfig.json"
+    },
+    "rules": {
+        "@typescript-eslint/no-explicit-any": "error",
+        "no-console": "off",
+        "@typescript-eslint/explicit-member-accessibility": "error",
+        "@typescript-eslint/lines-between-class-members": ["error", "always", { "exceptAfterSingleLine": true }],
+        "no-underscore-dangle": ["warn", { "allow": ["_id"]}],
+        "@typescript-eslint/member-ordering": ["error", { "default": [
+          "public-field",
+          "protected-field",
+          "private-field",
+          "constructor",
+          "static-method",
+          "public-method",
+          "protected-method",
+          "private-method"
+          ] }],
+        "prefer-arrow/prefer-arrow-functions": ["error", { "classPropertiesAllowed": true }],
+        "import/no-extraneous-dependencies": ["error", { "devDependencies": ["webpack.config.ts"] }],
+        "linebreak-style": 0
+    }
+}

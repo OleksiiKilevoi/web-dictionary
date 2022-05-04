@@ -6,17 +6,17 @@ import { errorResponse } from '@/api/baseResponses';
 
 import Jwt from '@/utils/Jwt';
 import FileLogger from '@/loggers/FileLogger';
-import UsersRepository from '@/database/repositories/UsersRepository';
+import Users from '@/database/repositories/Users';
 
 abstract class Controller {
   public readonly path: string;
   public readonly router: Router;
   protected readonly jwt: Jwt;
-  protected readonly usersRepository: UsersRepository;
+  protected readonly usersRepository: Users;
 
   public constructor(
     path: string,
-    usersRepository: UsersRepository,
+    usersRepository: Users,
   ) {
     this.path = path;
     this.router = Router();
