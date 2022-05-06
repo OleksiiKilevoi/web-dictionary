@@ -6,6 +6,7 @@ import express, {
 } from 'express';
 import { isBoom } from '@hapi/boom';
 import cors from 'cors';
+import fileUpload from 'express-fileupload';
 
 import Controller from './controllers/Controller';
 
@@ -32,6 +33,7 @@ class App {
 
   private initializeMiddlewares = () => {
     this.app.use(express.json());
+    this.app.use(fileUpload());
     this.app.use(
       cors({
         origin: '*',

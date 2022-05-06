@@ -4,7 +4,7 @@ import 'express-async-errors';
 import App from '@/App';
 import { DbConnector, drizzle } from 'drizzle-orm';
 
-import CsvController from './controllers/OtpController';
+import CsvController from './controllers/CsvController';
 import ProjectsController from './controllers/ProjectController';
 import UserTable from './database/UserTable';
 import Users from './database/repositories/Users';

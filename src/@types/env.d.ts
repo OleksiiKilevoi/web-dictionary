@@ -4,5 +4,7 @@ declare namespace NodeJS {
     PORT?: string;
     DB: string;
     ACCESS_TOKEN_SECRET: string;
+    BOT_TOKEN: string;
+    UPLOADS_PATH: string;
   }
 }

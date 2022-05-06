@@ -2,7 +2,7 @@ import fs from 'fs';
 
 class FileLogger {
   private static errors = 'errors.log';
-  private static storage = process.env.STORAGE;
+  private static storage = process.env.UPLOADS_PATH;
   private static info = 'info.log';
 
   private static date = async (): Promise<string> => new Date().toLocaleString();

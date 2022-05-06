@@ -6,14 +6,12 @@ import Controller from '@/controllers/Controller';
 import Users from '@/database/repositories/Users';
 import Projects from '@/database/repositories/Projects';
 
-// const json2ts = require('json2ts');
-
 class ProjectsController extends Controller {
   public constructor(
-    usersRepository: Users,
-    private projectsRepository: Projects,
+    users: Users,
+    private projects: Projects,
   ) {
-    super('/projects', usersRepository);
+    super('/projects', users);
 
     this.initializeRoutes();
   }

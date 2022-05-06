@@ -22,14 +22,10 @@ class CsvController extends Controller {
   }
 
   private initializeRoutes = () => {
-    this.router.post('/', this.loadCsv);
+    this.router.get('/', this.loadCsv);
   };
 
-  private loadCsv: RequestHandler<
-  {},
-  {},
-  { phone_number: string }
-  > = async (req, res) => {
+  private loadCsv: RequestHandler = async (req, res) => {
     try {
       const { files } = req.files!;
 
@@ -40,10 +36,24 @@ class CsvController extends Controller {
       }
 
       const destination = `${this.UPLOADS_PATH || '/storage'}/${file.name}`;
+      const csvf = fs.readFileSync(destination);
 
-      file.mv(destination);
+      const rowArray = csvf.toString().split('\r\n');
+      const array = rowArray.map((row) => row.split(','));
 
-      return res.status(200).json(okResponse());
+      const result: {[key: string]: {[key: string]: string}} = {};
+      for (let i = 1; i < array.length; i += 1) {
+        result[array[i][0]] = {};
+        for (let j = 1; j < array[i].length; j += 1) {
+          result[array[i][0]][array[0][j]] = array[i][j];
+        }
+      }
+
+      console.log(result);
+
+      fs.writeFileSync('output.json', JSON.stringify(result));
+
+      return res.status(200).json(okResponse(result));
     } catch (e: unknown) {
       if (e instanceof Error) {
         FileLogger.e(e);

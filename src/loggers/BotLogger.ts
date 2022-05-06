@@ -2,7 +2,7 @@ import FileLogger from '@/loggers/FileLogger';
 import Telegraf from 'telegraf';
 
 class BotLogger {
-  private bot: Telegraf<any>;
+  private bot: Telegraf<TelegrafContext>;
   private chatId: string;
 
   public constructor() {
@@ -13,9 +13,11 @@ class BotLogger {
   public sendMessage = async (message: string) => {
     try {
       await this.bot.telegram.sendMessage(this.chatId, message);
-    } catch (e) {
-      FileLogger.e(e);
-      console.log(e.message);
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        FileLogger.e(e);
+        console.log(e.message);
+      }
     }
   };
 }
