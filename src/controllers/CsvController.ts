@@ -10,6 +10,7 @@ import FileLogger from '@/loggers/FileLogger';
 import Users from '@/database/repositories/Users';
 import fileUpload from 'express-fileupload';
 import { internal } from '@hapi/boom';
+import convert from '@/utils/MapCsv';
 
 class CsvController extends Controller {
   public constructor(
@@ -22,7 +23,7 @@ class CsvController extends Controller {
   }
 
   private initializeRoutes = () => {
-    this.router.get('/', this.loadCsv);
+    this.router.post('/', this.loadCsv);
   };
 
   private loadCsv: RequestHandler = async (req, res) => {
@@ -36,20 +37,9 @@ class CsvController extends Controller {
       }
 
       const destination = `${this.UPLOADS_PATH || '/storage'}/${file.name}`;
-      const csvf = fs.readFileSync(destination);
+      const csv = fs.readFileSync(destination);
 
-      const rowArray = csvf.toString().split('\r\n');
-      const array = rowArray.map((row) => row.split(','));
-
-      const result: {[key: string]: {[key: string]: string}} = {};
-      for (let i = 1; i < array.length; i += 1) {
-        result[array[i][0]] = {};
-        for (let j = 1; j < array[i].length; j += 1) {
-          result[array[i][0]][array[0][j]] = array[i][j];
-        }
-      }
-
-      console.log(result);
+      const result = convert(csv);
 
       fs.writeFileSync('output.json', JSON.stringify(result));
 
