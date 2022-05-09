@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const convert = (csv: Buffer): {
   [key: string]: {
     [key: string]: string;
@@ -14,5 +15,13 @@ const convert = (csv: Buffer): {
     }
   }
   return result;
+
+  //   const rowArray = csv.toString().split('\r\n');
+  //   const [[_, ...keys], ...values] = rowArray.map((row) => row.split(','));
+
+//   const res = values.reduce((acc, [mainKey, ...value]) => (
+//     { ...acc, [mainKey]: { ...keys.reduce((acc, key, i) => ({ ...acc, ...{ [key]: value[i] } }), {}) } }
+//   ), {});
+//   return res;
 };
 export default convert;

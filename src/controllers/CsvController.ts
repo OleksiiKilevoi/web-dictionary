@@ -7,7 +7,7 @@ import { errorResponse, okResponse } from '@/api/baseResponses';
 
 import FileLogger from '@/loggers/FileLogger';
 
-import Users from '@/database/repositories/Users';
+import Users from '@/repositories/Users';
 import fileUpload from 'express-fileupload';
 import { internal } from '@hapi/boom';
 import convert from '@/utils/MapCsv';

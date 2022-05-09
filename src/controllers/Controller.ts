@@ -4,7 +4,7 @@ import { errorResponse } from '@/api/baseResponses';
 
 import Jwt from '@/utils/Jwt';
 import FileLogger from '@/loggers/FileLogger';
-import Users from '@/database/repositories/Users';
+import Users from '@/repositories/Users';
 import { internal } from '@hapi/boom';
 
 abstract class Controller {

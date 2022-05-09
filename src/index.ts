@@ -5,10 +5,10 @@ import App from '@/App';
 import { DbConnector, drizzle } from 'drizzle-orm';
 
 import CsvController from './controllers/CsvController';
-import ProjectsController from './controllers/ProjectController';
+import UsersController from './controllers/UsersController';
 import UserTable from './database/UserTable';
-import Users from './database/repositories/Users';
-import Projects from './database/repositories/Projects';
+import Users from './repositories/Users';
+import Projects from './repositories/Projects';
 import ProjectTable from './database/ProjectTable';
 
 const main = async () => {
@@ -23,7 +23,7 @@ const main = async () => {
   const projects = new Projects(projectsTable);
 
   const csvController = new CsvController(users);
-  const projectsController = new ProjectsController(users, projects);
+  const projectsController = new UsersController(users, projects);
 
   const controllers = [
     csvController,
