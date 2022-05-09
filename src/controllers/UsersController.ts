@@ -23,6 +23,30 @@ class UsersController extends Controller {
     this.router.get('/:id', this.getDictionary);
     this.router.post('/', this.createUser);
     this.router.post('/poroject', this.createProject);
+    this.router.post('/login', this.login);
+  };
+
+  private login: RequestHandler<
+  {},
+  {},
+  { email: string }> = async (req, res) => {
+    try {
+      const { email } = req.body;
+
+      const user = await this.users.getByEmail(email);
+
+      if (!user) return res.status(400).json(errorResponse('400', 'Unauthorized'));
+
+      const accessToken = this.jwt.createAccessToken(user.id!);
+      const refreshToken = this.jwt.createRefreshToken(user.id!);
+
+      return res.status(200).json(okResponse({ accessToken, refreshToken }));
+    } catch (e) {
+      if (e instanceof Error) {
+        return res.status(404).json(errorResponse('404', e.message));
+      }
+      return res.status(500).json(errorResponse('500', 'Internal unknown error'));
+    }
   };
 
   private getDictionary: RequestHandler<

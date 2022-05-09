@@ -11,7 +11,7 @@ class Jwt {
     this.secret = process.env.ACCESS_TOKEN_SECRET;
   }
 
-  public createAccessToken = (id: string) => (
+  public createAccessToken = (id: number) => (
     this.jwt.sign({ type: TokenType.ACCESS, id }, this.secret, { expiresIn: '4h' }));
 
   public verifyAccessToken = (token: string) => {
@@ -22,7 +22,7 @@ class Jwt {
     throw new Error('wrong token type');
   };
 
-  public createRefreshToken = (id: string) => (
+  public createRefreshToken = (id: number) => (
     this.jwt.sign({ id, type: TokenType.REFRESH }, this.secret, { expiresIn: '30d' }));
 
   public verifyRefreshToken = (token: string) => {
