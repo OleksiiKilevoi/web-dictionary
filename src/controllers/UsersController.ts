@@ -22,7 +22,7 @@ class UsersController extends Controller {
   private initializeRoutes = () => {
     this.router.get('/:id', this.getDictionary);
     this.router.post('/', this.createUser);
-    this.router.post('/poroject', this.createProject);
+    this.router.post('/project', this.protectRoute, this.protectCustomerRoute, this.createProject);
     this.router.post('/login', this.login);
   };
 

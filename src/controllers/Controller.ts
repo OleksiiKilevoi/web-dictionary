@@ -35,9 +35,25 @@ abstract class Controller {
       const decoded = this.jwt.verifyAccessToken(token);
       if (!decoded) throw Error('Can\'t find user from token');
 
-      // const user = await this.users.getById(decoded.id);
-      // if (!user) throw Error(`Can't find user by id: ${decoded.id} from token`);
-      // req.user = user;
+      const user = await this.users.getById(decoded.id);
+      if (!user) throw Error(`Can't find user by id: ${decoded.id} from token`);
+      req.user = user;
+
+      return next();
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        FileLogger.e(e);
+        return res.status(401).json(errorResponse('401', e.message));
+      }
+      return internal('Internal error');
+    }
+  };
+
+  protected protectCustomerRoute: RequestHandler = async (req, res, next) => {
+    try {
+      const { user } = req;
+
+      if (user.role !== 'customer') return res.status(400).json(errorResponse('400', 'Unauthorized'));
 
       return next();
     } catch (e: unknown) {
