@@ -1,4 +1,4 @@
-import { RequestHandler, Router } from 'express';
+import { NextFunction, RequestHandler, Router } from 'express';
 
 import { errorResponse } from '@/api/baseResponses';
 
@@ -6,6 +6,7 @@ import Jwt from '@/utils/Jwt';
 import FileLogger from '@/loggers/FileLogger';
 import Users from '@/repositories/Users';
 import { internal } from '@hapi/boom';
+import { z } from 'zod';
 
 abstract class Controller {
   public readonly path: string;
@@ -53,7 +54,7 @@ abstract class Controller {
     try {
       const { user } = req;
 
-      if (user.role !== 'customer') return res.status(400).json(errorResponse('400', 'Unauthorized'));
+      if (user!.role !== 'customer') return res.status(400).json(errorResponse('400', 'Unauthorized'));
 
       return next();
     } catch (e: unknown) {
@@ -63,6 +64,23 @@ abstract class Controller {
       }
       return internal('Internal error');
     }
+  };
+
+  protected validate = (schema: z.ZodTypeAny)
+  : RequestHandler => async (req, res, next: NextFunction) => {
+    const parsed = schema.safeParse(req.body);
+    console.log(parsed);
+
+    if (parsed.success) {
+      return next();
+    }
+    const validationError = parsed.error!.issues
+      .map(({ path, message }) => `${path.join('.')}: ${message}`)
+      .join('; ');
+
+    console.log(validationError);
+
+    return res.status(404).json(errorResponse('404', validationError));
   };
 }
 

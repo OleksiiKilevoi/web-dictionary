@@ -6,7 +6,7 @@ import Users from '@/repositories/Users';
 import Projects from '@/repositories/Projects';
 import { errorResponse, okResponse } from '@/api/baseResponses';
 import { ExtractModel } from 'drizzle-orm';
-import UserTable from '@/database/UserTable';
+import UserTable, { userSchema } from '@/database/UserTable';
 import { ProjectModel } from '@/database/ProjectTable';
 
 class UsersController extends Controller {
@@ -21,7 +21,7 @@ class UsersController extends Controller {
 
   private initializeRoutes = () => {
     this.router.get('/:id', this.getDictionary);
-    this.router.post('/', this.createUser);
+    this.router.post('/', this.validate(userSchema), this.createUser);
     this.router.post('/project', this.protectRoute, this.protectCustomerRoute, this.createProject);
     this.router.post('/login', this.login);
   };

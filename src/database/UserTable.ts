@@ -2,6 +2,7 @@
 /* eslint-disable prefer-arrow/prefer-arrow-functions */
 import AbstractTable from 'drizzle-orm/tables/abstractTable';
 import { ExtractModel } from 'drizzle-orm/tables/inferTypes';
+import { z } from 'zod';
 import { rolesEnum } from './types';
 
 export type UserModel = ExtractModel<UserTable>;
@@ -16,3 +17,10 @@ export default class UserTable extends AbstractTable<UserTable> {
     return 'users';
   }
 }
+
+export const userSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  email: z.string(),
+  role: z.enum(['customer', 'developer', 'editor']),
+});
