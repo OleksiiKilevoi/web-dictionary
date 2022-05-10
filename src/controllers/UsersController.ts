@@ -6,8 +6,9 @@ import Users from '@/repositories/Users';
 import Projects from '@/repositories/Projects';
 import { errorResponse, okResponse } from '@/api/baseResponses';
 import { ExtractModel } from 'drizzle-orm';
-import UserTable, { userSchema } from '@/database/UserTable';
-import { ProjectModel } from '@/database/ProjectTable';
+import UserTable, { createUserSchema } from '@/database/UserTable';
+import { ProjectModel, partialProject } from '@/database/ProjectTable';
+import wrapped from '@/utils/Wrapped';
 
 class UsersController extends Controller {
   public constructor(
@@ -20,33 +21,26 @@ class UsersController extends Controller {
   }
 
   private initializeRoutes = () => {
-    this.router.get('/:id', this.getDictionary);
-    this.router.post('/', this.validate(userSchema), this.createUser);
-    this.router.post('/project', this.protectRoute, this.protectCustomerRoute, this.createProject);
-    this.router.post('/login', this.login);
+    this.router.get('/:id', wrapped(this.getDictionary));
+    this.router.post('/', this.validate(createUserSchema), wrapped(this.createUser));
+    this.router.post('/project', this.validate(partialProject), this.protectRoute, this.protectCustomerRoute, wrapped(this.createProject));
+    this.router.post('/login', wrapped(this.login));
   };
 
   private login: RequestHandler<
   {},
   {},
   { email: string }> = async (req, res) => {
-    try {
-      const { email } = req.body;
+    const { email } = req.body;
 
-      const user = await this.users.getByEmail(email);
+    const user = await this.users.getByEmail(email);
 
-      if (!user) return res.status(400).json(errorResponse('400', 'Unauthorized'));
+    if (!user) return res.status(400).json(errorResponse('400', 'Unauthorized'));
 
-      const accessToken = this.jwt.createAccessToken(user.id!);
-      const refreshToken = this.jwt.createRefreshToken(user.id!);
+    const accessToken = this.jwt.createAccessToken(user.id!);
+    const refreshToken = this.jwt.createRefreshToken(user.id!);
 
-      return res.status(200).json(okResponse({ accessToken, refreshToken }));
-    } catch (e) {
-      if (e instanceof Error) {
-        return res.status(404).json(errorResponse('404', e.message));
-      }
-      return res.status(500).json(errorResponse('500', 'Internal unknown error'));
-    }
+    return res.status(200).json(okResponse({ accessToken, refreshToken }));
   };
 
   private getDictionary: RequestHandler<
@@ -71,18 +65,11 @@ class UsersController extends Controller {
   {},
   { name: string, email: string, role: ExtractModel<UserTable>['role']}
   > = async (req, res) => {
-    try {
-      const { email, name, role } = req.body;
+    const { email, name, role } = req.body;
 
-      const newUser = await this.users.create({ email, name, role });
+    const newUser = await this.users.create({ email, name, role });
 
-      return res.status(200).json(okResponse(newUser));
-    } catch (e) {
-      if (e instanceof Error) {
-        return res.status(404).json(errorResponse('404', e.message));
-      }
-      return res.status(500).json(errorResponse('500', 'Internal unknown error'));
-    }
+    return res.status(200).json(okResponse(newUser));
   };
 
   private createProject: RequestHandler<

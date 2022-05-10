@@ -1,0 +1,79 @@
+{
+  "version": "2",
+  "tables": {
+    "projects": {
+      "name": "projects",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "SERIAL",
+          "primaryKey": true,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "character varying",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "path_to_dictionary": {
+          "name": "path_to_dictionary",
+          "type": "character varying",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {}
+    },
+    "users": {
+      "name": "users",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "SERIAL",
+          "primaryKey": true,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "character varying",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "character varying",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "user_role",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "users_email_index": {
+          "name": "users_email_index",
+          "columns": {
+            "email": {
+              "name": "email"
+            }
+          },
+          "isUnique": true
+        }
+      }
+    }
+  },
+  "enums": {
+    "user_role": {
+      "name": "user_role",
+      "values": {
+        "customer": "customer",
+        "developer": "developer",
+        "editor": "editor"
+      }
+    }
+  }
+}

@@ -10,7 +10,7 @@ export type UserModel = ExtractModel<UserTable>;
 export default class UserTable extends AbstractTable<UserTable> {
   public id = this.serial('id').primaryKey();
   public name = this.varchar('name').notNull();
-  public email = this.varchar('email').notNull();
+  public email = this.varchar('email').notNull().unique();
   public role = this.type(rolesEnum, 'role');
 
   public tableName(): string {
@@ -18,9 +18,11 @@ export default class UserTable extends AbstractTable<UserTable> {
   }
 }
 
-export const userSchema = z.object({
+const userSchema = z.object({
   id: z.number(),
   name: z.string(),
   email: z.string(),
   role: z.enum(['customer', 'developer', 'editor']),
 });
+
+export const createUserSchema = userSchema.partial({ id: true });

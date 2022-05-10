@@ -69,7 +69,6 @@ abstract class Controller {
   protected validate = (schema: z.ZodTypeAny)
   : RequestHandler => async (req, res, next: NextFunction) => {
     const parsed = schema.safeParse(req.body);
-    console.log(parsed);
 
     if (parsed.success) {
       return next();
@@ -77,8 +76,6 @@ abstract class Controller {
     const validationError = parsed.error!.issues
       .map(({ path, message }) => `${path.join('.')}: ${message}`)
       .join('; ');
-
-    console.log(validationError);
 
     return res.status(404).json(errorResponse('404', validationError));
   };

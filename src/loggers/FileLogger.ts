@@ -12,7 +12,7 @@ class FileLogger {
       fs.appendFileSync(`${FileLogger.storage}/${FileLogger.info}`,
         `${await FileLogger.date()} : ${message} \n`);
     } catch (e) {
-      console.log(e.message);
+      console.log(e);
     }
   };
 
