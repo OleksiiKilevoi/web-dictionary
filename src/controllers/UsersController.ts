@@ -10,12 +10,16 @@ import UsersTable, { createUserSchema } from '@/database/UsersTable';
 import { ProjectModel, partialProject } from '@/database/ProjectTable';
 import wrapped from '@/utils/Wrapped';
 import UserToProject from '@/repositories/UserToProject';
+import fileUpload from 'express-fileupload';
+import * as fs from 'fs';
+import convert from '@/utils/MapCsv';
 
 class UsersController extends Controller {
   public constructor(
     users: Users,
     private projects: Projects,
     private userToProject: UserToProject,
+    private UPLOADS_PATH = process.env.UPLOADS_PATH,
   ) {
     super('/users', users);
 
@@ -26,8 +30,34 @@ class UsersController extends Controller {
     this.router.get('/:id', wrapped(this.getDictionary));
     this.router.post('/', this.validate(createUserSchema), wrapped(this.createUser));
     this.router.post('/project', this.validate(partialProject), this.protectRoute, this.protectCustomerRoute, wrapped(this.createProject));
-    this.router.post('/project/add-user/:id', this.protectRoute, this.protectCustomerRoute, this.addUserToProject);
+    this.router.post('/project/add-user/:id', this.protectRoute, this.protectCustomerRoute, wrapped(this.addUserToProject));
     this.router.post('/login', wrapped(this.login));
+    this.router.post('/load-csv/:id', this.protectRoute, wrapped(this.loadCsv));
+  };
+
+  private loadCsv: RequestHandler<{ id: string }> = async (req, res) => {
+    const { files } = req.files!;
+    const { id } = req.params;
+
+    const project = await this.projects.getById(id);
+
+    if (!project) return res.status(404).json(errorResponse('404', 'Project with such id was not found'));
+
+    const file = files as unknown as fileUpload.UploadedFile;
+
+    if (!fs.existsSync(`${this.UPLOADS_PATH || '/storage'}/${project.id}`)) {
+      fs.mkdirSync(`${this.UPLOADS_PATH || '/storage'}/${project.id}`);
+    }
+
+    const timestamp = Date.now();
+    const destination = `${this.UPLOADS_PATH || '/storage'}/${project.id}/${timestamp}.json`;
+
+    const result = convert(file.data);
+
+    fs.writeFileSync(destination, JSON.stringify(result));
+    this.projects.updateById(id, destination);
+
+    return res.status(200).json(okResponse(result));
   };
 
   private addUserToProject: RequestHandler<
@@ -80,6 +110,7 @@ class UsersController extends Controller {
   {id: string},
   {}
   > = async (req, res) => {
+    
     res.status(200).sendFile('storage/myjsonfile.ts');
   };
 

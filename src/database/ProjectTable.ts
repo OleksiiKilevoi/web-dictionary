@@ -9,7 +9,7 @@ export type ProjectModel = ExtractModel<ProjectTable>;
 export default class ProjectTable extends AbstractTable<ProjectTable> {
   public id = this.serial('id').primaryKey();
   public name = this.varchar('name').notNull();
-  public pathTodictionary = this.varchar('path_to_dictionary');
+  public pathToDictionary = this.varchar('path_to_dictionary');
 
   public tableName(): string {
     return 'projects';

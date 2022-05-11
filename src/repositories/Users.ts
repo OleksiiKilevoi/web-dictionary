@@ -1,4 +1,3 @@
-// import Boom from 'boom';
 import { eq } from 'drizzle-orm';
 import UsersTable, { UserModel } from '../database/UsersTable';
 
@@ -9,8 +8,14 @@ class Users {
 
   public create = (user: UserModel) => this.usersTable.insert(user).findOne();
 
-  public getById = (id: string | number) => this.usersTable
-    .select().where(eq(this.usersTable.id, Number(id))).findOne();
+  public getById = (id: string | number) => {
+    try {
+      return this.usersTable
+        .select().where(eq(this.usersTable.id, Number(id))).findOne();
+    } catch (err: unknown) {
+      return undefined;
+    }
+  };
 
   public getByEmail = (email: string) => {
     try {
