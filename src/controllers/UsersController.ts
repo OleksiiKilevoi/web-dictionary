@@ -110,8 +110,15 @@ class UsersController extends Controller {
   {id: string},
   {}
   > = async (req, res) => {
-    
-    res.status(200).sendFile('storage/myjsonfile.ts');
+    const { id } = req.params;
+
+    const project = await this.projects.getById(id);
+
+    if (project && project.pathToDictionary) {
+      const dictionary = fs.readFileSync(project?.pathToDictionary).toString();
+      return res.status(200).json(okResponse(JSON.parse(dictionary)));
+    }
+    return res.status(404).json(errorResponse('404', 'Dictionary for this project was not found'));
   };
 
   private createUser: RequestHandler<
