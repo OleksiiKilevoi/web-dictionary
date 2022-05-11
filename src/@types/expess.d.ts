@@ -1,4 +1,4 @@
-import { UserModel } from '@/database/UserTable';
+import { UserModel } from '@/database/UsersTable';
 
 declare global {
   namespace Express {

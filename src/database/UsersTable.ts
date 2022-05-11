@@ -5,11 +5,11 @@ import { ExtractModel } from 'drizzle-orm/tables/inferTypes';
 import { z } from 'zod';
 import { rolesEnum } from './types';
 
-export type UserModel = ExtractModel<UserTable>;
+export type UserModel = ExtractModel<UsersTable>;
 
-export default class UserTable extends AbstractTable<UserTable> {
+export default class UsersTable extends AbstractTable<UsersTable> {
   public id = this.serial('id').primaryKey();
-  public name = this.varchar('name').notNull();
+  public name = this.varchar('name');
   public email = this.varchar('email').notNull().unique();
   public role = this.type(rolesEnum, 'role');
 
