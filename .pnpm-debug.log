@@ -1,0 +1,73 @@
+{
+  "0 debug pnpm:scope": {
+    "selected": 1
+  },
+  "1 debug pnpm:package-manifest": {
+    "initial": {
+      "name": "web-dictionary",
+      "version": "1.0.0",
+      "description": "",
+      "main": "index.js",
+      "scripts": {
+        "start": "node build/index.js",
+        "build": "esbuild src/index.ts --platform=node --external:./node_modules/* --target=node14 --bundle --minify --main-fields=main --outfile=build/index.js",
+        "server": "node ./build/index.js",
+        "dev": "nodemon",
+        "test": "docker run --rm --name test-instance -d -e POSTGRES_PASSWORD=password -p 5433:5432 postgres && jest && docker stop test-instance",
+        "lint": "eslint --fix --ext .ts ./src",
+        "migration": "drizzle-kit migrate"
+      },
+      "author": "Oleksii Kilevoi",
+      "license": "ISC",
+      "dependencies": {
+        "@hapi/boom": "9.1.1",
+        "boom": "^7.3.0",
+        "ci": "^2.2.0",
+        "cors": "^2.8.5",
+        "dotenv": "8.2.0",
+        "drizzle-orm": "0.10.44",
+        "esbuild": "^0.14.25",
+        "express": "^4.18.1",
+        "express-async-errors": "^3.1.1",
+        "express-fileupload": "^1.3.1",
+        "jsonwebtoken": "^8.5.1",
+        "telegraf": "^4.8.1",
+        "zod": "^3.15.1"
+      },
+      "devDependencies": {
+        "@babel/plugin-proposal-class-properties": "^7.16.7",
+        "@babel/plugin-proposal-decorators": "^7.17.9",
+        "@types/boom": "^7.3.2",
+        "@types/cors": "^2.8.12",
+        "@types/express": "^4.17.13",
+        "@types/express-fileupload": "^1.2.2",
+        "@types/jsonwebtoken": "^8.5.8",
+        "drizzle-kit": "^0.9.46",
+        "esbuild-loader": "^2.18.0",
+        "esbuild-register": "^3.3.2",
+        "eslint": "7.15.0",
+        "eslint-config-airbnb-typescript": "12.0.0",
+        "eslint-plugin-import": "2.22.1",
+        "eslint-plugin-prefer-arrow": "1.2.2",
+        "nodemon": "^2.0.16",
+        "prettier": "2.2.1",
+        "ts-node": "^10.7.0",
+        "tsconfig-paths": "3.9.0",
+        "typescript": "4.1.3"
+      }
+    },
+    "prefix": "/Users/oleksiikilevoi/web-dicktionary/web-dictionary"
+  },
+  "2 debug pnpm:context": {
+    "currentLockfileExists": false,
+    "storeDir": "/Users/oleksiikilevoi/Library/pnpm/store/v3",
+    "virtualStoreDir": "/Users/oleksiikilevoi/web-dicktionary/web-dictionary/node_modules/.pnpm"
+  },
+  "3 error pnpm": {
+    "err": {
+      "name": "pnpm",
+      "message": "Headless installation requires a pnpm-lock.yaml file",
+      "stack": "pnpm: Headless installation requires a pnpm-lock.yaml file\n    at _install (/snapshot/dist/pnpm.cjs)\n    at mutateModules (/snapshot/dist/pnpm.cjs)\n    at async install (/snapshot/dist/pnpm.cjs)\n    at async handler (/snapshot/dist/pnpm.cjs)\n    at async /snapshot/dist/pnpm.cjs\n    at async run (/snapshot/dist/pnpm.cjs)\n    at async runPnpm (/snapshot/dist/pnpm.cjs)\n    at async /snapshot/dist/pnpm.cjs"
+    }
+  }
+}

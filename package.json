@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node build/index.js",
-    "build": "esbuild src/index.ts --platform=node --external:./node_modules/* --target=node14 --bundle --minify --main-fields=main --outfile=build/index.js",
+    "build": "esbuild src/index.ts --platform=node --external:./node_modules/* --external:zod --target=node14 --bundle --minify --main-fields=main --outfile=build/index.js",
     "server": "node ./build/index.js",
     "dev": "nodemon",
     "test": "docker run --rm --name test-instance -d -e POSTGRES_PASSWORD=password -p 5433:5432 postgres && jest && docker stop test-instance",
@@ -21,6 +21,7 @@
     "cors": "^2.8.5",
     "dotenv": "8.2.0",
     "drizzle-orm": "0.10.44",
+    "esbuild": "^0.14.25",
     "express": "^4.18.1",
     "express-async-errors": "^3.1.1",
     "express-fileupload": "^1.3.1",

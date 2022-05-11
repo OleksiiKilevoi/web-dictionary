@@ -11,6 +11,8 @@ const wrapped = (callback: any): RequestHandler => async (req, res, next) => {
   } catch (e) {
     if (e instanceof Error) {
       FileLogger.e(e);
+      console.error(e);
+
       return res.status(404).json(errorResponse('404', e.message));
     }
     return res.status(500).json(errorResponse('500', 'Internal unknown error'));

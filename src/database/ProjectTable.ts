@@ -23,4 +23,4 @@ const projectSchema = z.object({
 
 });
 
-export const partialProject = projectSchema.partial({ pathToDictionary: true });
+export const partialProject = projectSchema.partial({ pathToDictionary: true, id: true });

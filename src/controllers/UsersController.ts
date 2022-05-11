@@ -27,7 +27,7 @@ class UsersController extends Controller {
   }
 
   private initializeRoutes = () => {
-    this.router.get('/:id', wrapped(this.getDictionary));
+    this.router.get('/:id', this.protectRoute, wrapped(this.getDictionary));
     this.router.post('/', this.validate(createUserSchema), wrapped(this.createUser));
     this.router.post('/project', this.validate(partialProject), this.protectRoute, this.protectCustomerRoute, wrapped(this.createProject));
     this.router.post('/project/add-user/:id', this.protectRoute, this.protectCustomerRoute, wrapped(this.addUserToProject));
@@ -110,7 +110,12 @@ class UsersController extends Controller {
   {id: string},
   {}
   > = async (req, res) => {
+    const { user } = req;
     const { id } = req.params;
+
+    const userToProject = await this.userToProject.getByUserAndProjectId(user?.id!, id);
+
+    if (!userToProject) return res.status(400).json(errorResponse('400', 'Unauthorized'));
 
     const project = await this.projects.getById(id);
 
