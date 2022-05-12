@@ -8,19 +8,21 @@ class Users {
 
   public create = (user: UserModel) => this.usersTable.insert(user).findOne();
 
-  public getById = (id: string | number) => {
+  public getById = async (id: string | number) => {
     try {
-      return this.usersTable
+      const response = await this.usersTable
         .select().where(eq(this.usersTable.id, Number(id))).findOne();
+      return response;
     } catch (err: unknown) {
       return undefined;
     }
   };
 
-  public getByEmail = (email: string) => {
+  public getByEmail = async (email: string) => {
     try {
-      return this.usersTable
+      const response = await this.usersTable
         .select().where(eq(this.usersTable.email, email)).findOne();
+      return response;
     } catch (err: unknown) {
       return undefined;
     }
