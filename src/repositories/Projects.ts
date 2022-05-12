@@ -6,7 +6,7 @@ class Projects {
 
   public getAll = () => this.projectsTable.select().all();
 
-  public create = (project: ProjectModel) => this.projectsTable.insert(project).all();
+  public create = (project: ProjectModel) => this.projectsTable.insert(project).findOne();
 
   public getById = (id: string | number) => {
     try {

@@ -143,7 +143,10 @@ class UsersController extends Controller {
   {},
   ProjectModel
   > = async (req, res) => {
+    const { user } = req;
     const newProject = await this.projects.create(req.body);
+    await this.userToProject
+      .create({ projectId: newProject.id!, userId: user?.id! });
 
     return res.status(200).json(okResponse(newProject));
   };
