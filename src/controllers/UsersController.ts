@@ -36,12 +36,16 @@ class UsersController extends Controller {
   };
 
   private loadCsv: RequestHandler<{ id: string }> = async (req, res) => {
+    const { user } = req;
     const { files } = req.files!;
     const { id } = req.params;
 
     const project = await this.projects.getById(id);
 
     if (!project) return res.status(404).json(errorResponse('404', 'Project with such id was not found'));
+
+    const userToProject = await this.userToProject.getByUserAndProjectId(user?.id!, id);
+    if (!userToProject) return res.status(404).json(errorResponse('404', 'Unauthorized'));
 
     const file = files as unknown as fileUpload.UploadedFile;
 
