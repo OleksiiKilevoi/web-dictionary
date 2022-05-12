@@ -1,6 +1,7 @@
 /* eslint-disable consistent-return */
 import { errorResponse } from '@/api/baseResponses';
 import FileLogger from '@/loggers/FileLogger';
+import BotLogger from '@/loggers/BotLogger';
 
 import { RequestHandler } from 'express';
 
@@ -10,7 +11,9 @@ const wrapped = (callback: any): RequestHandler => async (req, res, next) => {
     await callback(req, res, next);
   } catch (e) {
     if (e instanceof Error) {
+      // const logger = new BotLogger();
       FileLogger.e(e);
+      BotLogger.log(e.message);
       console.error(e);
 
       return res.status(404).json(errorResponse('404', e.message));

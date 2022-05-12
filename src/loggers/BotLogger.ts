@@ -1,24 +1,17 @@
-import FileLogger from '@/loggers/FileLogger';
 import Telegraf from 'telegraf';
+// import { TelegrafContext } from 'telegraf/typings/context';
 
 class BotLogger {
-  private bot: Telegraf<TelegrafContext>;
-  private chatId: string;
+  // private bot: Telegraf<TelegrafContext>;
+  // private chatId: string;
 
-  public constructor() {
-    this.bot = new Telegraf(process.env.BOT_TOKEN);
-    this.chatId = process.env.BOT_GROUP_ID;
-  }
+  private static bot = new Telegraf(process.env.BOT_TOKEN);
+  private static chatId = process.env.BOT_GROUP_ID!;
 
-  public sendMessage = async (message: string) => {
-    try {
-      await this.bot.telegram.sendMessage(this.chatId, message);
-    } catch (e: unknown) {
-      if (e instanceof Error) {
-        FileLogger.e(e);
-        console.log(e.message);
-      }
-    }
+  public static log = (message: string) => {
+    BotLogger.bot.telegram
+      .sendMessage(BotLogger.chatId, message)
+      .catch((e: Error) => console.error(e));
   };
 }
 

@@ -4,8 +4,6 @@ import { and, eq } from 'drizzle-orm';
 class UserToProject {
   public constructor(private userToProjectsTable: UserToProjectTable) {}
 
-  //   public getAll = () => this.projectsTable.select().all();
-
   public create = (userToProject: UserToProjectModel) => this.userToProjectsTable
     .insert(userToProject).all();
 
