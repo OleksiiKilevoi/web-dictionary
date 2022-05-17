@@ -8,7 +8,7 @@ class Jwt {
 
   public constructor() {
     this.jwt = jwt;
-    this.secret = process.env.ACCESS_TOKEN_SECRET;
+    this.secret = process.env.ACCESS_TOKEN_SECRET || 'zalupa';
   }
 
   public createAccessToken = (id: number) => (

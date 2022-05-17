@@ -14,7 +14,7 @@ import UserToProjectTable from './database/UserToProjectTable';
 import UserToProject from './repositories/UserToProject';
 
 const main = async () => {
-  const db = await new DbConnector().connectionString(process.env.DB).connect();
+  const db = await new DbConnector().connectionString(process.env.DB || 'postgresql://postgres:password@host.docker.internal:5433/postgres').connect();
 
   await drizzle.migrator(db).migrate({ migrationFolder: './drizzle' });
 
