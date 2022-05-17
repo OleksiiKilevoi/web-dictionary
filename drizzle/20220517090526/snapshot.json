@@ -1,0 +1,124 @@
+{
+  "version": "2",
+  "tables": {
+    "projects": {
+      "name": "projects",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "SERIAL",
+          "primaryKey": true,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "character varying",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "path_to_dictionary": {
+          "name": "path_to_dictionary",
+          "type": "character varying",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {}
+    },
+    "users_to_project": {
+      "name": "users_to_project",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "SERIAL",
+          "primaryKey": true,
+          "notNull": false
+        },
+        "project_id": {
+          "name": "project_id",
+          "type": "INT",
+          "primaryKey": false,
+          "notNull": true,
+          "references": "users_to_project_project_id_fkey;projects;id;;"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "INT",
+          "primaryKey": false,
+          "notNull": true,
+          "references": "users_to_project_user_id_fkey;users;id;;"
+        }
+      },
+      "indexes": {
+        "users_to_project_project_id_user_id_index": {
+          "name": "users_to_project_project_id_user_id_index",
+          "columns": {
+            "project_id": {
+              "name": "project_id"
+            },
+            "user_id": {
+              "name": "user_id"
+            }
+          },
+          "isUnique": true
+        }
+      }
+    },
+    "users": {
+      "name": "users",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "SERIAL",
+          "primaryKey": true,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "character varying",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "character varying",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password": {
+          "name": "password",
+          "type": "character varying",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "role": {
+          "name": "role",
+          "type": "user_role",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "users_email_index": {
+          "name": "users_email_index",
+          "columns": {
+            "email": {
+              "name": "email"
+            }
+          },
+          "isUnique": true
+        }
+      }
+    }
+  },
+  "enums": {
+    "user_role": {
+      "name": "user_role",
+      "values": {
+        "customer": "customer",
+        "developer": "developer",
+        "editor": "editor"
+      }
+    }
+  }
+}

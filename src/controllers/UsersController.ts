@@ -27,12 +27,50 @@ class UsersController extends Controller {
   }
 
   private initializeRoutes = () => {
+    this.router.get('/', this.protectRoute, wrapped(this.getMe));
     this.router.get('/:id', this.protectRoute, wrapped(this.getDictionary));
     this.router.post('/', this.validate(createUserSchema), wrapped(this.createUser));
     this.router.post('/project', this.validate(partialProject), this.protectRoute, this.protectCustomerRoute, wrapped(this.createProject));
     this.router.post('/project/add-user/:id', this.protectRoute, this.protectCustomerRoute, wrapped(this.addUserToProject));
     this.router.post('/login', wrapped(this.login));
+    this.router.post('/login/refresh', wrapped(this.refreshToken));
     this.router.post('/load-csv/:id', this.protectRoute, wrapped(this.loadCsv));
+  };
+
+  private refreshToken: RequestHandler<
+  {},
+  {},
+  { refreshToken: string }
+  > = async (req, res) => {
+    try {
+      const { refreshToken: oldRefreshToken } = req.body;
+
+      const decoded = this.jwt.verifyRefreshToken(oldRefreshToken);
+      const user = await this.users.getById(decoded.id);
+
+      if (!user) return res.status(400).json(errorResponse('400', `Can't find user by id: ${decoded.id} from token`));
+
+      const accessToken = this.jwt.createAccessToken(user.id!);
+      const refreshToken = this.jwt.createRefreshToken(user.id!);
+
+      return res.status(200).json(okResponse({
+        id: user.id,
+        accessToken,
+        refreshToken,
+      }));
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        // this.botLogger.errorReport(e, 'ERROR in LoginController | refreshToken');
+        return res.status(400).json(errorResponse('400', e.message));
+      }
+      return res.status(400).json(errorResponse('400', 'unknown error'));
+    }
+  };
+
+  private getMe: RequestHandler = async (req, res) => {
+    const { user } = req;
+
+    return res.status(200).json(okResponse(user));
   };
 
   private loadCsv: RequestHandler<{ id: string }> = async (req, res) => {
@@ -74,7 +112,7 @@ class UsersController extends Controller {
     const user = await this.users.getByEmail(email);
 
     if (!user) {
-      const newUser = await this.users.create({ email, role: 'editor' });
+      const newUser = await this.users.create({ email, password: 'password', role: 'editor' });
       try {
         const userToProject = await this.userToProject
           .create({ userId: newUser.id!, projectId: Number(id) });
@@ -97,12 +135,13 @@ class UsersController extends Controller {
   private login: RequestHandler<
   {},
   {},
-  { email: string }> = async (req, res) => {
-    const { email } = req.body;
+  { email: string, password: string }> = async (req, res) => {
+    const { email, password } = req.body;
 
     const user = await this.users.getByEmail(email);
 
     if (!user) return res.status(400).json(errorResponse('400', 'Unauthorized'));
+    if (password && password !== user.password) return res.status(400).json(errorResponse('400', 'Unauthorized'));
 
     const accessToken = this.jwt.createAccessToken(user.id!);
     const refreshToken = this.jwt.createRefreshToken(user.id!);
@@ -133,11 +172,15 @@ class UsersController extends Controller {
   private createUser: RequestHandler<
   {},
   {},
-  { name: string, email: string, role: ExtractModel<UsersTable>['role']}
+  { name: string, email: string, password: string, role: ExtractModel<UsersTable>['role']}
   > = async (req, res) => {
-    const { email, name, role } = req.body;
+    const {
+      email, name, password, role,
+    } = req.body;
 
-    const newUser = await this.users.create({ email, name, role });
+    const newUser = await this.users.create({
+      email, name, role, password,
+    });
 
     return res.status(200).json(okResponse(newUser));
   };
