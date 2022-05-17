@@ -30,12 +30,37 @@ class UsersController extends Controller {
     this.router.get('/', this.protectRoute, wrapped(this.getMe));
     this.router.get('/info', this.protectRoute, this.getInfoById);
     this.router.get('/:id', this.protectRoute, wrapped(this.getDictionary));
+    this.router.get('/project/:id', this.protectRoute, wrapped(this.getProjectInfo));
     this.router.post('/', this.validate(createUserSchema), wrapped(this.createUser));
     this.router.post('/project', this.validate(partialProject), this.protectRoute, this.protectCustomerRoute, wrapped(this.createProject));
     this.router.post('/project/add-user/:id', this.protectRoute, this.protectCustomerRoute, wrapped(this.addUserToProject));
     this.router.post('/login', wrapped(this.login));
     this.router.post('/login/refresh', wrapped(this.refreshToken));
     this.router.post('/load-csv/:id', this.protectRoute, wrapped(this.loadCsv));
+  };
+
+  private getProjectInfo: RequestHandler = async (req, res) => {
+    const { user } = req;
+    const { id } = req.params;
+
+    const userToProject = await this.userToProject.getByUserAndProjectId(user!.id!, id);
+    if (!userToProject) return res.status(400).json(errorResponse('400', 'Unauthorized'));
+
+    const project = await this.projects.getById(id);
+    if (!project) return res.status(400).json(errorResponse('400', 'Project with such id was not found'));
+
+    const usersToProjects = await this.userToProject.getAllByProjectId(project.id!);
+
+    const users = await Promise.all(usersToProjects.map(async (bond) => {
+      const organization = await this.users.getById(bond.userId);
+      return organization;
+    }));
+
+    const response = {
+      users,
+      project,
+    };
+    return res.status(200).json(okResponse(response));
   };
 
   private getInfoById: RequestHandler = async (req, res) => {

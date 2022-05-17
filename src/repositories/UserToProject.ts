@@ -12,6 +12,11 @@ class UserToProject {
     .where(eq(this.userToProjectsTable.userId, Number(userId)))
     .all();
 
+  public getAllByProjectId = async (projectId: string | number) => this.userToProjectsTable
+    .select()
+    .where(eq(this.userToProjectsTable.projectId, Number(projectId)))
+    .all();
+
   public getByUserAndProjectId = async (
     userId: string | number,
     projectId: string | number,
