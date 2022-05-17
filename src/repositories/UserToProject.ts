@@ -7,6 +7,11 @@ class UserToProject {
   public create = (userToProject: UserToProjectModel) => this.userToProjectsTable
     .insert(userToProject).all();
 
+  public getAllByUserId = async (userId: string | number) => this.userToProjectsTable
+    .select()
+    .where(eq(this.userToProjectsTable.userId, Number(userId)))
+    .all();
+
   public getByUserAndProjectId = async (
     userId: string | number,
     projectId: string | number,

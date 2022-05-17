@@ -28,6 +28,7 @@ class UsersController extends Controller {
 
   private initializeRoutes = () => {
     this.router.get('/', this.protectRoute, wrapped(this.getMe));
+    this.router.get('/info', this.protectRoute, this.getInfoById);
     this.router.get('/:id', this.protectRoute, wrapped(this.getDictionary));
     this.router.post('/', this.validate(createUserSchema), wrapped(this.createUser));
     this.router.post('/project', this.validate(partialProject), this.protectRoute, this.protectCustomerRoute, wrapped(this.createProject));
@@ -35,6 +36,18 @@ class UsersController extends Controller {
     this.router.post('/login', wrapped(this.login));
     this.router.post('/login/refresh', wrapped(this.refreshToken));
     this.router.post('/load-csv/:id', this.protectRoute, wrapped(this.loadCsv));
+  };
+
+  private getInfoById: RequestHandler = async (req, res) => {
+    const { user } = req;
+
+    const userToProject = await this.userToProject.getAllByUserId(user!.id!);
+    const projects = await Promise.all(userToProject.map(async (bond) => {
+      const organization = await this.projects.getById(bond.projectId);
+      return organization;
+    }));
+
+    return res.status(200).json(okResponse(projects));
   };
 
   private refreshToken: RequestHandler<
