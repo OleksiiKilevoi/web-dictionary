@@ -12,22 +12,31 @@ import Projects from './repositories/Projects';
 import ProjectTable from './database/ProjectTable';
 import UserToProjectTable from './database/UserToProjectTable';
 import UserToProject from './repositories/UserToProject';
+import Otp from './repositories/Otp';
+import { OtpsTable } from './database/OtpTable';
+import BotLogger from './loggers/BotLogger';
+import EmailSender from './utils/EmailSender';
 
 const main = async () => {
   const db = await new DbConnector().connectionString(process.env.DB || 'postgresql://postgres:password@host.docker.internal:5433/postgres').connect();
 
   await drizzle.migrator(db).migrate({ migrationFolder: './drizzle' });
+  const botLogger = new BotLogger();
+  const emailSender = new EmailSender(botLogger);
 
   const usersTable = new UsersTable(db);
   const projectsTable = new ProjectTable(db);
   const userToProjectTable = new UserToProjectTable(db);
+  const otpTable = new OtpsTable(db);
 
   const users = new Users(usersTable);
   const projects = new Projects(projectsTable);
   const userToProject = new UserToProject(userToProjectTable);
+  const otp = new Otp(otpTable);
 
   const csvController = new CsvController(users);
-  const projectsController = new UsersController(users, projects, userToProject);
+  // eslint-disable-next-line max-len
+  const projectsController = new UsersController(users, projects, userToProject, otp, botLogger, emailSender);
 
   const controllers = [
     csvController,

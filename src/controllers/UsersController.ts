@@ -6,19 +6,26 @@ import Users from '@/repositories/Users';
 import Projects from '@/repositories/Projects';
 import { errorResponse, okResponse } from '@/api/baseResponses';
 import { ExtractModel } from 'drizzle-orm';
-import UsersTable, { createUserSchema } from '@/database/UsersTable';
+import UsersTable, { createUserSchema, UserModel } from '@/database/UsersTable';
 import { ProjectModel, partialProject } from '@/database/ProjectTable';
 import wrapped from '@/utils/Wrapped';
 import UserToProject from '@/repositories/UserToProject';
 import fileUpload from 'express-fileupload';
 import * as fs from 'fs';
 import convert from '@/utils/MapCsv';
+import { generateProdOtp } from '@/utils/OtpUtils';
+import Otp from '@/repositories/Otp';
+import BotLogger from '@/loggers/BotLogger';
+import EmailSender from '@/utils/EmailSender';
 
 class UsersController extends Controller {
   public constructor(
     users: Users,
     private projects: Projects,
     private userToProject: UserToProject,
+    private otps: Otp,
+    protected readonly botLogger: BotLogger,
+    protected readonly emailSender: EmailSender,
     private UPLOADS_PATH = process.env.UPLOADS_PATH,
   ) {
     super('/users', users);
@@ -39,6 +46,45 @@ class UsersController extends Controller {
     this.router.post('/login/refresh', wrapped(this.refreshToken));
     this.router.post('/load-csv/:id', this.protectRoute, wrapped(this.loadCsv));
     this.router.delete('/project/:projectId/remove-user/:id', this.protectRoute, wrapped(this.deleteUserFromProject));
+  };
+
+  private otp: RequestHandler<
+  {},
+  {},
+  { email: string }
+  > = async (req, res) => {
+    try {
+      const { email } = req.body;
+      const otpCode = generateProdOtp();
+
+      const isExist = await this.otps.getByEmail(email);
+      if (!isExist) {
+        await this.otps.create({
+          otp: otpCode,
+          email,
+          createdAt: Date.now(),
+        });
+      }
+
+      const otp = await this.otps.update(otpCode, email);
+
+      const encryptedEmail = Buffer.from(email).toString('base64');
+
+      // const message = `login | ${otp.email}\n${process.env.FRONT_URL || 'http://localhost:3000'}/opt/${otpCode}/${encryptedEmail}`;
+
+      const otpLink = `${process.env.FRONT_URL || 'http://localhost:3000'}/opt/${otpCode}/${encryptedEmail}`;
+
+      await this.emailSender.sendOtpEmail(email, otpLink);
+      // await this.botLogger.sendMessage(message);
+
+      return res.status(200).json(okResponse(otp));
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        // this.botLogger.errorReport(e, 'ERROR in LoginController | otp');
+        return res.status(400).json(errorResponse('400', e.message));
+      }
+      return res.status(400).json(errorResponse('400', 'Unknown server error'));
+    }
   };
 
   private getUserById: RequestHandler = async (req, res) => {
@@ -164,14 +210,21 @@ class UsersController extends Controller {
   private addUserToProject: RequestHandler<
   {id: string},
   {},
-  {email: string }
+  UserModel
   > = async (req, res) => {
     const { id } = req.params;
-    const { email } = req.body;
+    const {
+      email,
+      password,
+      role,
+      name,
+    } = req.body;
     const user = await this.users.getByEmail(email);
 
     if (!user) {
-      const newUser = await this.users.create({ email, password: 'password', role: 'editor' });
+      const newUser = await this.users.create({
+        email, password, role, name,
+      });
       try {
         const userToProject = await this.userToProject
           .create({ userId: newUser.id!, projectId: Number(id) });
@@ -200,7 +253,7 @@ class UsersController extends Controller {
     const user = await this.users.getByEmail(email);
 
     if (!user) return res.status(400).json(errorResponse('400', 'Unauthorized'));
-    if (password && password !== user.password) return res.status(400).json(errorResponse('400', 'Unauthorized'));
+    if (password !== user.password) return res.status(400).json(errorResponse('400', 'Unauthorized'));
 
     const accessToken = this.jwt.createAccessToken(user.id!);
     const refreshToken = this.jwt.createRefreshToken(user.id!);
