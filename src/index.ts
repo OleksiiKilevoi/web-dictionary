@@ -4,7 +4,7 @@ import 'express-async-errors';
 import App from '@/App';
 import { DbConnector, drizzle } from 'drizzle-orm';
 
-import CsvController from './controllers/CsvController';
+import LoginController from './controllers/LoginController';
 import UsersController from './controllers/UsersController';
 import UsersTable from './database/UsersTable';
 import Users from './repositories/Users';
@@ -16,6 +16,7 @@ import Otp from './repositories/Otp';
 import { OtpsTable } from './database/OtpTable';
 import BotLogger from './loggers/BotLogger';
 import EmailSender from './utils/EmailSender';
+import ProjectController from './controllers/ProjectController';
 
 const main = async () => {
   const db = await new DbConnector().connectionString(process.env.DB || 'postgresql://postgres:password@host.docker.internal:5433/postgres').connect();
@@ -34,12 +35,18 @@ const main = async () => {
   const userToProject = new UserToProject(userToProjectTable);
   const otp = new Otp(otpTable);
 
-  const csvController = new CsvController(users);
-  // eslint-disable-next-line max-len
-  const projectsController = new UsersController(users, projects, userToProject, otp, botLogger, emailSender);
+  const csvController = new LoginController(users, emailSender, otp);
+  const projectsController = new ProjectController(users, projects, userToProject);
+  const usersController = new UsersController(
+    users,
+    projects,
+    userToProject,
+    botLogger,
+  );
 
   const controllers = [
     csvController,
+    usersController,
     projectsController,
   ];
 
