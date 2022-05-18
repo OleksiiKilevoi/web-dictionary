@@ -26,8 +26,7 @@ class UsersController extends Controller {
   }
 
   private initializeRoutes = () => {
-    this.router.get('/', this.protectRoute, wrapped(this.getMe));
-    this.router.get('/info', this.protectRoute, this.getInfoById);
+    this.router.get('/', this.protectRoute, this.getInfoById);
     this.router.get('/:id', this.protectRoute, wrapped(this.getUserById));
     this.router.post('/', this.validate(createUserSchema), wrapped(this.createUser));
   };
@@ -52,12 +51,6 @@ class UsersController extends Controller {
     }));
 
     return res.status(200).json(okResponse(projects));
-  };
-
-  private getMe: RequestHandler = async (req, res) => {
-    const { user } = req;
-
-    return res.status(200).json(okResponse(user));
   };
 
   private createUser: RequestHandler<

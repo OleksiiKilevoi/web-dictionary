@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:5000
+@baseUrl = http://localhost:5001
 
 
 @userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjowLCJpZCI6NiwiaWF0IjoxNjMyODA5MjYwLCJleHAiOjE2MzI4OTU2NjB9.jkEwFkRbxHavlCvZDdiXkZeHljKLcTHlJlF8nzic_2E
@@ -13,19 +13,62 @@ Content-Type: application/json
     "password": "password"
 }
 
-### Remove organization from manager (admin route) 
-POST  {{baseUrl}}/organization/remove-manager/6?organizationIds=1,2
+### Refresh token
+POST  {{baseUrl}}/login/refresh
+Content-Type: application/json
+{
+    "refreshToken": "oldRefreshToken"
+}
+
+### Get user info
+GET  {{baseUrl}}/users
 Content-Type: application/json
 Authorization: Bearer {{userToken}}
 
 
-### Add user to company
-POST  {{baseUrl}}admin/manager
+### Create user
+POST  {{baseUrl}}/users
 Content-Type: application/json
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer {{userToken}}
 {
-    "email": "usichenkokirill@gmail.com",
-    "name": "string",
-    "type":  "admin", 
+    "email!": "example@gmail.com",
+    "password!": "password",
+    "name!": "name",
+    "role": "customer' | 'developer' | 'editor"
 }
 
+### Get proj info
+GET {{baseUrl}}/project/:projectId
+Content-Type: application/json
+
+### Get project dictionary
+GET {{baseUrl}}/project/:projectId/dictionary
+Content-Type: application/json
+
+### Create project (protect customer route)
+POST {{baseUrl}}/project
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+{
+    "name!": "name",
+}
+
+### Add user to project
+POST {{baseUrl}}/projects/:projectId/add-user
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+{
+    "email!": "example@gmail.com",
+    "password!": "password",
+    "name!": "name",
+    "role": "customer' | 'developer' | 'editor"
+}
+
+### Delete user from project
+DELETE {{baseUrl}}/projects/:projectId/remove-user/:userId
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+### Load CSV
+POST {{baseUrl}}/projects/:projectId/load-csv
+Content-Type: multipart/form-data;

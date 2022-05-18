@@ -28,11 +28,11 @@ class ProjectController extends Controller {
 
   private initializeRoutes = () => {
     this.router.get('/:id', this.protectRoute, wrapped(this.getProjectInfo));
-    this.router.get('/dictionary/:id', this.protectRoute, wrapped(this.getDictionary));
+    this.router.get('/:id/dictionary', this.protectRoute, wrapped(this.getDictionary));
     this.router.post('/', this.validate(partialProject), this.protectRoute, this.protectCustomerRoute, wrapped(this.createProject));
-    this.router.post('/add-user/:id', this.protectRoute, this.protectCustomerRoute, wrapped(this.addUserToProject));
+    this.router.post('/:id/add-user', this.protectRoute, this.protectCustomerRoute, wrapped(this.addUserToProject));
     this.router.delete('/project/:projectId/remove-user/:id', this.protectRoute, wrapped(this.deleteUserFromProject));
-    this.router.post('/load-csv/:id', this.protectRoute, wrapped(this.loadCsv));
+    this.router.post('/:id/load-csv', this.protectRoute, wrapped(this.loadCsv));
   };
 
   private loadCsv: RequestHandler<{ id: string }> = async (req, res) => {
