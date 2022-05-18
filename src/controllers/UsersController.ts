@@ -29,6 +29,7 @@ class UsersController extends Controller {
   private initializeRoutes = () => {
     this.router.get('/', this.protectRoute, wrapped(this.getMe));
     this.router.get('/info', this.protectRoute, this.getInfoById);
+    this.router.get('/developer/:id', this.protectRoute, wrapped(this.getUserById));
     this.router.get('/:id', this.protectRoute, wrapped(this.getDictionary));
     this.router.get('/project/:id', this.protectRoute, wrapped(this.getProjectInfo));
     this.router.post('/', this.validate(createUserSchema), wrapped(this.createUser));
@@ -39,12 +40,20 @@ class UsersController extends Controller {
     this.router.post('/load-csv/:id', this.protectRoute, wrapped(this.loadCsv));
   };
 
+  private getUserById: RequestHandler = async (req, res) => {
+    const { id } = req.params;
+
+    const user = await this.users.getById(id);
+
+    return res.status(200).json(okResponse(user));
+  };
+
   private getProjectInfo: RequestHandler = async (req, res) => {
     const { user } = req;
     const { id } = req.params;
 
     const userToProject = await this.userToProject.getByUserAndProjectId(user!.id!, id);
-    if (!userToProject) return res.status(400).json(errorResponse('400', 'Unauthorized'));
+    if (!userToProject) return res.status(400).json(errorResponse('400', 'You have no project yet'));
 
     const project = await this.projects.getById(id);
     if (!project) return res.status(400).json(errorResponse('400', 'Project with such id was not found'));
