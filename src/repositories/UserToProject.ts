@@ -17,6 +17,24 @@ class UserToProject {
     .where(eq(this.userToProjectsTable.projectId, Number(projectId)))
     .all();
 
+  public deleteUserToProjectRelation = async (
+    userId: string | number,
+    projectId: string | number,
+  ) : Promise<UserToProjectModel | undefined> => {
+    try {
+      const response = await this.userToProjectsTable
+        .delete()
+        .where(and([
+          eq(this.userToProjectsTable.projectId, Number(projectId)),
+          eq(this.userToProjectsTable.userId, Number(userId)),
+        ]))
+        .findOne();
+      return response;
+    } catch (e) {
+      return undefined;
+    }
+  };
+
   public getByUserAndProjectId = async (
     userId: string | number,
     projectId: string | number,

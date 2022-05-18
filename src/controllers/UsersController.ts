@@ -38,6 +38,7 @@ class UsersController extends Controller {
     this.router.post('/login', wrapped(this.login));
     this.router.post('/login/refresh', wrapped(this.refreshToken));
     this.router.post('/load-csv/:id', this.protectRoute, wrapped(this.loadCsv));
+    this.router.delete('/project/:projectId/remove-user/:id', this.protectRoute, wrapped(this.deleteUserFromProject));
   };
 
   private getUserById: RequestHandler = async (req, res) => {
@@ -45,7 +46,18 @@ class UsersController extends Controller {
 
     const user = await this.users.getById(id);
 
+    if (!user) return res.status(400).json(errorResponse('400', 'User with such id was not found'));
+
     return res.status(200).json(okResponse(user));
+  };
+
+  private deleteUserFromProject: RequestHandler<
+  { id: string, projectId: string }> = async (req, res) => {
+    const { id, projectId } = req.params;
+
+    const userToProject = await this.userToProject.deleteUserToProjectRelation(id!, projectId);
+
+    return res.status(200).json(okResponse(userToProject));
   };
 
   private getProjectInfo: RequestHandler = async (req, res) => {
