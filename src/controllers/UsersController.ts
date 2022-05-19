@@ -66,11 +66,11 @@ class UsersController extends Controller {
   { name: string, email: string, password: string, role: ExtractModel<UsersTable>['role']}
   > = async (req, res) => {
     const {
-      email, name, password, role,
+      email, name, role,
     } = req.body;
 
     const newUser = await this.users.create({
-      email, name, role, password,
+      email, name, role,
     });
 
     return res.status(200).json(okResponse(newUser));

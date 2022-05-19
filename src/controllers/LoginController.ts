@@ -70,12 +70,11 @@ class LoginController extends Controller {
   {},
   {},
   { email: string, password: string }> = async (req, res) => {
-    const { email, password } = req.body;
+    const { email } = req.body;
 
     const user = await this.users.getByEmail(email);
 
     if (!user) return res.status(400).json(errorResponse('400', 'Unauthorized'));
-    if (password !== user.password) return res.status(400).json(errorResponse('400', 'Unauthorized'));
 
     const accessToken = this.jwt.createAccessToken(user.id!);
     const refreshToken = this.jwt.createRefreshToken(user.id!);

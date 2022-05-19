@@ -31,7 +31,7 @@ class ProjectController extends Controller {
     this.router.get('/:id/dictionary', this.protectRoute, wrapped(this.getDictionary));
     this.router.post('/', this.validate(partialProject), this.protectRoute, this.protectCustomerRoute, wrapped(this.createProject));
     this.router.post('/:id/add-user', this.protectRoute, this.protectCustomerRoute, wrapped(this.addUserToProject));
-    this.router.delete('/project/:projectId/remove-user/:id', this.protectRoute, wrapped(this.deleteUserFromProject));
+    this.router.delete('/:projectId/remove-user/:id', this.protectRoute, wrapped(this.deleteUserFromProject));
     this.router.post('/:id/load-csv', this.protectRoute, wrapped(this.loadCsv));
   };
 
@@ -81,7 +81,6 @@ class ProjectController extends Controller {
     const { id } = req.params;
     const {
       email,
-      password,
       role,
       name,
     } = req.body;
@@ -89,7 +88,7 @@ class ProjectController extends Controller {
 
     if (!user) {
       const newUser = await this.users.create({
-        email, password, role, name,
+        email, role, name,
       });
       try {
         const userToProject = await this.userToProject

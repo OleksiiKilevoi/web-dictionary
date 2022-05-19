@@ -25,6 +25,10 @@ GET  {{baseUrl}}/users
 Content-Type: application/json
 Authorization: Bearer {{userToken}}
 
+### Get user by id
+GET  {{baseUrl}}/users/:id
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
 
 ### Get user info
 GET  {{baseUrl}}/users/info
@@ -38,7 +42,6 @@ Content-Type: application/json
 Authorization: Bearer {{userToken}}
 {
     "email!": "example@gmail.com",
-    "password!": "password",
     "name!": "name",
     "role": "customer' | 'developer' | 'editor"
 }

@@ -11,7 +11,6 @@ export default class UsersTable extends AbstractTable<UsersTable> {
   public id = this.serial('id').primaryKey();
   public name = this.varchar('name').notNull();
   public email = this.varchar('email').notNull().unique();
-  public password = this.varchar('password').notNull();
   public role = this.type(rolesEnum, 'role');
 
   public tableName(): string {
@@ -23,7 +22,6 @@ const userSchema = z.object({
   id: z.number(),
   name: z.string(),
   email: z.string(),
-  password: z.string(),
   role: z.enum(['customer', 'developer', 'editor']),
 });
 
