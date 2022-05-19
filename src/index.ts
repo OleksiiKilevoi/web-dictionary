@@ -35,7 +35,7 @@ const main = async () => {
   const userToProject = new UserToProject(userToProjectTable);
   const otp = new Otp(otpTable);
 
-  const csvController = new LoginController(users, emailSender, otp);
+  const loginController = new LoginController(users, emailSender, otp);
   const projectsController = new ProjectController(users, projects, userToProject);
   const usersController = new UsersController(
     users,
@@ -45,7 +45,7 @@ const main = async () => {
   );
 
   const controllers = [
-    csvController,
+    loginController,
     usersController,
     projectsController,
   ];

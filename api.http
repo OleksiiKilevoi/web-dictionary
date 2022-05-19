@@ -20,8 +20,14 @@ Content-Type: application/json
     "refreshToken": "oldRefreshToken"
 }
 
-### Get user info
+### Get me
 GET  {{baseUrl}}/users
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+
+### Get user info
+GET  {{baseUrl}}/users/info
 Content-Type: application/json
 Authorization: Bearer {{userToken}}
 
