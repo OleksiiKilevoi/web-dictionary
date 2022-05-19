@@ -43,7 +43,7 @@ Authorization: Bearer {{userToken}}
 {
     "email!": "example@gmail.com",
     "name!": "name",
-    "role": "customer' | 'developer' | 'editor"
+    "permissions": "enum"
 }
 
 ### Get proj info
@@ -70,7 +70,7 @@ Authorization: Bearer {{userToken}}
     "email!": "example@gmail.com",
     "password!": "password",
     "name!": "name",
-    "role": "customer' | 'developer' | 'editor"
+    "permissions": "enum"
 }
 
 ### Delete user from project
@@ -78,8 +78,12 @@ DELETE {{baseUrl}}/project/:projectId/remove-user/:userId
 Content-Type: application/json
 Authorization: Bearer {{userToken}}
 
-### Load CSV
-POST {{baseUrl}}/project/:projectId/load-csv
+### Upload CSV
+POST {{baseUrl}}/project/:projectId/upload-csv
+Content-Type: multipart/form-data;
+
+### Download CSV
+GET  {{baseUrl}}/project/:projectId/download-csv
 Content-Type: multipart/form-data;
 
 ### Validate otp

@@ -35,10 +35,31 @@ class ProjectController extends Controller {
     this.router.post('/', this.validate(partialProject), this.protectRoute, this.protectCustomerRoute, wrapped(this.createProject));
     this.router.post('/:id/add-user', this.protectRoute, this.protectCustomerRoute, wrapped(this.addUserToProject));
     this.router.delete('/:projectId/remove-user/:id', this.protectRoute, wrapped(this.deleteUserFromProject));
-    this.router.post('/:id/load-csv', this.protectRoute, wrapped(this.loadCsv));
+    this.router.post('/:id/upload-csv', this.protectRoute, wrapped(this.uploadCsv));
+    this.router.get('/:id/download-csv', this.protectRoute, wrapped(this.downloadCsv));
   };
 
-  private loadCsv: RequestHandler<{ id: string }> = async (req, res) => {
+  private downloadCsv: RequestHandler<
+  {id: string},
+  {}
+  > = async (req, res) => {
+    const { user } = req;
+    const { id } = req.params;
+
+    const userToProject = await this.userToProject.getByUserAndProjectId(user?.id!, id);
+
+    if (!userToProject) return res.status(400).json(errorResponse('400', 'Unauthorized'));
+
+    const project = await this.projects.getById(id);
+
+    if (project && project.pathToDictionary) {
+      // const dictionary = fs.readFileSync(project?.pathToDictionary).toString();
+      return res.status(200).sendFile(project.pathToDictionary, { root: './' });
+    }
+    return res.status(404).json(errorResponse('404', 'Dictionary for this project was not found'));
+  };
+
+  private uploadCsv: RequestHandler<{ id: string }> = async (req, res) => {
     const { user } = req;
     const { files } = req.files!;
     const { id } = req.params;

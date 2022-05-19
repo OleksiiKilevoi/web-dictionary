@@ -54,7 +54,7 @@ abstract class Controller {
     try {
       const { user } = req;
 
-      if (user!.role !== 'customer') return res.status(400).json(errorResponse('400', 'Unauthorized'));
+      if (user!.permissions?.includes('customer')) return res.status(400).json(errorResponse('400', 'Unauthorized'));
 
       return next();
     } catch (e: unknown) {
