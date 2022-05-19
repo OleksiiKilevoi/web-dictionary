@@ -63,14 +63,14 @@ class UsersController extends Controller {
   private createUser: RequestHandler<
   {},
   {},
-  { name: string, email: string, password: string, role: ExtractModel<UsersTable>['role']}
+  { name: string, email: string, password: string, permissions: ExtractModel<UsersTable>['permissions']}
   > = async (req, res) => {
     const {
-      email, name, role,
+      email, name, permissions,
     } = req.body;
 
     const newUser = await this.users.create({
-      email, name, role,
+      email, name, permissions,
     });
 
     return res.status(200).json(okResponse(newUser));

@@ -3,7 +3,6 @@
 import AbstractTable from 'drizzle-orm/tables/abstractTable';
 import { ExtractModel } from 'drizzle-orm/tables/inferTypes';
 import { z } from 'zod';
-import { rolesEnum } from './types';
 
 export type UserModel = ExtractModel<UsersTable>;
 
@@ -11,7 +10,7 @@ export default class UsersTable extends AbstractTable<UsersTable> {
   public id = this.serial('id').primaryKey();
   public name = this.varchar('name').notNull();
   public email = this.varchar('email').notNull().unique();
-  public role = this.type(rolesEnum, 'role');
+  public permissions = this.jsonb<string[]>('permissions');
 
   public tableName(): string {
     return 'users';
@@ -22,7 +21,7 @@ const userSchema = z.object({
   id: z.number(),
   name: z.string(),
   email: z.string(),
-  role: z.enum(['customer', 'developer', 'editor']),
+  permissions: z.string().array(),
 });
 
 export const createUserSchema = userSchema.partial({ id: true });

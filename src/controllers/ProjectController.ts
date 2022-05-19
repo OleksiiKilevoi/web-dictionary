@@ -84,7 +84,7 @@ class ProjectController extends Controller {
     const { id } = req.params;
     const {
       email,
-      role,
+      permissions,
       name,
     } = req.body;
     const user = await this.users.getByEmail(email);
@@ -93,7 +93,7 @@ class ProjectController extends Controller {
     const link = `${process.env.FRONT_URL || 'http://localhost:3000'}/opt/${otpCode}/${encryptedEmail}`;
 
     if (!user) {
-      const newUser = await this.users.create({ email, role, name });
+      const newUser = await this.users.create({ email, permissions, name });
       try {
         const userToProject = await this.userToProject
           .create({ userId: newUser.id!, projectId: Number(id) });
