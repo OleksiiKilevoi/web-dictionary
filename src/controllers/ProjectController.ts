@@ -73,17 +73,22 @@ class ProjectController extends Controller {
 
     const file = files as unknown as fileUpload.UploadedFile;
 
+    if (file.mimetype !== 'text/csv') return res.status(404).json(errorResponse('404', 'csv file required'));
+
     if (!fs.existsSync(`${this.UPLOADS_PATH || '/storage'}/${project.id}`)) {
       fs.mkdirSync(`${this.UPLOADS_PATH || '/storage'}/${project.id}`);
     }
 
+    const fileName = file.name.replace('.csv', '');
     const timestamp = Date.now();
-    const destination = `${this.UPLOADS_PATH || '/storage'}/${project.id}/${timestamp}.json`;
-
+    const pathToJson = `${this.UPLOADS_PATH || '/storage'}/${project.id}/${timestamp}_${fileName}.json`;
+    const pathToCsv = `${this.UPLOADS_PATH || '/storage'}/${project.id}/${timestamp}_${file.name}`;
+    file.mv(pathToCsv);
     const result = convert(file.data);
 
-    fs.writeFileSync(destination, JSON.stringify(result));
-    this.projects.updateById(id, destination);
+    fs.writeFileSync(pathToJson, JSON.stringify(result));
+
+    this.projects.updateById(id, pathToJson, pathToCsv);
 
     return res.status(200).json(okResponse(result));
   };

@@ -10,6 +10,7 @@ export default class ProjectTable extends AbstractTable<ProjectTable> {
   public id = this.serial('id').primaryKey();
   public name = this.varchar('name').notNull();
   public pathToDictionary = this.varchar('path_to_dictionary');
+  public pathToCsv = this.varchar('path_to_csv');
 
   public tableName(): string {
     return 'projects';

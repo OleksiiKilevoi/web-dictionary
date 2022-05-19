@@ -39,6 +39,8 @@ class LoginController extends Controller {
 
       const otpDb = await this.otps.getByEmail(decryptedEmail);
 
+      if (!otpDb) return res.status(404).json(errorResponse('400', 'Something went wrong'));
+
       const user = await this.users.getByEmail(decryptedEmail);
 
       if (!user) return res.status(400).json(errorResponse('400', 'You haven\'t been added to any company yet'));

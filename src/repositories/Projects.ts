@@ -8,21 +8,22 @@ class Projects {
 
   public create = (project: ProjectModel) => this.projectsTable.insert(project).findOne();
 
-  public getById = (id: string | number) => {
+  public getById = async (id: string | number) => {
     try {
-      return this.projectsTable
+      const result = await this.projectsTable
         .select()
         .where(eq(this.projectsTable.id, Number(id)))
         .findOne();
+      return result;
     } catch (e) {
       return undefined;
     }
   };
 
-  public updateById = (id: string | number, path: string) => {
+  public updateById = (id: string | number, pathToDictionary: string, pathToCsv: string) => {
     this.projectsTable.update()
       .where(eq(this.projectsTable.id, Number(id)))
-      .set({ pathToDictionary: path })
+      .set({ pathToDictionary, pathToCsv })
       .findOne();
   };
 }

@@ -1,0 +1,1 @@
+ALTER TABLE projects ADD COLUMN "path_to_csv" character varying;
