@@ -63,7 +63,7 @@ Authorization: Bearer {{userToken}}
 }
 
 ### Add user to project
-POST {{baseUrl}}/projects/:projectId/add-user
+POST {{baseUrl}}/project/:projectId/add-user
 Content-Type: application/json
 Authorization: Bearer {{userToken}}
 {
@@ -74,10 +74,10 @@ Authorization: Bearer {{userToken}}
 }
 
 ### Delete user from project
-DELETE {{baseUrl}}/projects/:projectId/remove-user/:userId
+DELETE {{baseUrl}}/project/:projectId/remove-user/:userId
 Content-Type: application/json
 Authorization: Bearer {{userToken}}
 
 ### Load CSV
-POST {{baseUrl}}/projects/:projectId/load-csv
+POST {{baseUrl}}/project/:projectId/load-csv
 Content-Type: multipart/form-data;

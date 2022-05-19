@@ -36,7 +36,7 @@ const main = async () => {
   const otp = new Otp(otpTable);
 
   const loginController = new LoginController(users, emailSender, otp);
-  const projectsController = new ProjectController(users, projects, userToProject);
+  const projectsController = new ProjectController(users, projects, userToProject, emailSender);
   const usersController = new UsersController(
     users,
     projects,

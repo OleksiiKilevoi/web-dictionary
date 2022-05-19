@@ -13,12 +13,15 @@ import Projects from '@/repositories/Projects';
 import UserToProject from '@/repositories/UserToProject';
 import fileUpload from 'express-fileupload';
 import convert from '@/utils/MapCsv';
+import EmailSender from '@/utils/EmailSender';
+import { generateProdOtp } from '@/utils/OtpUtils';
 
 class ProjectController extends Controller {
   public constructor(
     users: Users,
     private projects: Projects,
     private userToProject: UserToProject,
+    private emailSender: EmailSender,
     private UPLOADS_PATH = process.env.UPLOADS_PATH,
   ) {
     super('/project', users);
@@ -85,15 +88,16 @@ class ProjectController extends Controller {
       name,
     } = req.body;
     const user = await this.users.getByEmail(email);
+    const otpCode = generateProdOtp();
+    const encryptedEmail = Buffer.from(email).toString('base64');
+    const link = `${process.env.FRONT_URL || 'http://localhost:3000'}/opt/${otpCode}/${encryptedEmail}`;
 
     if (!user) {
-      const newUser = await this.users.create({
-        email, role, name,
-      });
+      const newUser = await this.users.create({ email, role, name });
       try {
         const userToProject = await this.userToProject
           .create({ userId: newUser.id!, projectId: Number(id) });
-
+        this.emailSender.sendOtpEmail(newUser.email, link);
         return res.status(200).json(okResponse(userToProject));
       } catch (e) {
         return res.status(400).json(errorResponse('400', 'User already has access'));
@@ -102,7 +106,7 @@ class ProjectController extends Controller {
     try {
       const userToProject = await this.userToProject
         .create({ userId: user.id!, projectId: Number(id) });
-
+      this.emailSender.sendOtpEmail(user.email, link);
       return res.status(200).json(okResponse(userToProject));
     } catch (e) {
       return res.status(400).json(errorResponse('400', 'User already has access'));

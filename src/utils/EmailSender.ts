@@ -72,41 +72,43 @@ class EmailSender {
       письмо</div>
     <table cellpadding="0" cellspacing="0" width="100%" bgcolor="#f2f5f8" height="100vh">
       <tr>
-        <td height="572px" width="576px" height="352px"  style="padding-top: 40px;">
+        <td height="572px" width="576px" height="352px">
           <table cellpadding="0" cellspacing="0" width="640" align="center" bgcolor="#ffffff">
             <tr style="display: inline-block;">
               <td
-                style="display: inline-block; padding-top: 32px; padding-left: 32px; padding-bottom: 10px; padding-right: 32px; font-family: Inter,sans-serif; font-weight: 500; font-size: 16px;">
+                style="display: inline-block; padding-top: 32px; padding-left: 32px; padding-bottom: 32px; padding-right: 32px; font-family: Inter,sans-serif; font-weight: 500; font-size: 16px;">
                 <p style="font-family: Inter,sans-serif; font-weight: 500; font-size: 16px;">Hi ${email}</p>
               </td>
               <td
                 style="display: inline-block; padding-left: 32px;  padding-right: 32px;  font-family: Inter,sans-serif; font-weight: 500; font-size: 16px">
   
-                <p style="font-family: Inter,sans-serif; font-weight: 500; font-size: 16px;">Thank you for registering as an Beta Tester for Robo Vault.</p>
+                <p style="font-family: Inter,sans-serif; font-weight: 500; font-size: 16px;">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Explicabo, facere!</p>
               </td>
               <td
-                style="display: inline-block; padding-left: 32px;  padding-right: 32px; padding-bottom: 10px; font-family: Inter,sans-serif; font-weight: 500; font-size: 16px">
+                style="display: inline-block; padding-left: 32px;  padding-right: 32px;  font-family: Inter,sans-serif; font-weight: 500; font-size: 16px">
                 <p style="font-family: Inter,sans-serif; font-weight: 500; font-size: 16px;">Please use the below link to access your portal:</p>
               </td>
               <td
                 style=" padding-left: 32px;  padding-right: 32px;  font-family: Inter,sans-serif; font-weight: 500; font-size: 16px">
-                <p style="font-family: Inter,sans-serif; font-weight: 500; font-size: 16px;"><a href="${link}">Click here</a></p>
+                <p style="font-family: Inter,sans-serif; font-weight: 500; font-size: 16px;">${link}</p>
               </td>
   
               <td
-                style="display: inline-block; padding-top: 10px; padding-left: 32px; padding-bottom: 32px; padding-right: 32px;  font-family: Inter,sans-serif; font-weight: 500; font-size: 16px">
-                <p style="font-family: Inter,sans-serif; font-weight: 500; font-size: 16px; line-height: 1.5;">Beta testing will end February 2022, should you wish to suggest any additional improvements,
-                please contact your account manager, Juan Visser juan@meshedgroup.co.za</p>
+                style="display: inline-block; padding-top: 32px; padding-left: 32px; padding-bottom: 32px; padding-right: 32px;  font-family: Inter,sans-serif; font-weight: 500; font-size: 16px">
+                <p style="font-family: Inter,sans-serif; font-weight: 500; font-size: 16px; line-height: 1.5;">Lorem ipsum dolor sit amet consectetur adipisicing elit. Ad, dignissimos ex tenetur dicta vel aliquid molestias. Possimus quam quidem adipisci?</p>
               </td>
   
               <td
-                style="display: inline-block; padding-left: 32px; padding-bottom: 32px; padding-right: 32px;  font-family: Inter,sans-serif; font-weight: 500; font-size: 16px; display: flex; align-items: center;">
-                <p style="font-family: Inter,sans-serif; font-weight: 500; font-size: 16px; line-height: 1.5; display: flex; align-items: center;">Robot Fact - Bots don't have Fat Fingers <p style="margin-left: 5px;">🤖</p></p>
+                style="display: inline-block; padding-left: 32px; padding-bottom: 32px; padding-right: 32px;  font-family: Inter,sans-serif; font-weight: 500; font-size: 16px">
+                <p style="font-family: Inter,sans-serif; font-weight: 500; font-size: 16px; line-height: 1.5;"></p>
               </td>
               <table cellpadding="0" cellspacing="0" width="640px" align="center" bgcolor="#f7f9fc">
                 <td
-                  style=" height: 128px; padding-left: 32px; padding-right: 32px; padding-bottom: 0px; font-family: Inter,sans-serif; font-weight: 500; font-size: 16px">
-                  <p style="font-family: Inter,sans-serif; font-weight: 500; font-size: 16px; line-height: 1.5;">This email was sent to ${email}
+                  style=" height: 128px; padding-left: 32px; padding-right: 32px; padding-bottom: 32px; font-family: Inter,sans-serif; font-weight: 500; font-size: 16px">
+                  <p style="font-family: Inter,sans-serif; font-weight: 500; font-size: 16px; line-height: 1.5;">This email was sent to <a href="#">@EMAIL@</a> If you’d rather not
+                  receive this kind of email, you can <a href="#">unsubscribe or manage your email
+                    preferences. </a></p>
+              </table>
         </td>
       </tr>
     </table>
@@ -115,6 +117,8 @@ class EmailSender {
   
     </table>
   </body>
+  
+  </html>
   `;
     return text;
   };
@@ -125,8 +129,8 @@ class EmailSender {
       port: 587,
       secure: false,
       auth: {
-        user: 'lunaxodd@gmail.com',
-        pass: 'alexei1997',
+        user: 'nahryshko_roman@kneu.edu.ua',
+        pass: 'nagrishkoo@gmail.com',
       },
     });
     return transporter;

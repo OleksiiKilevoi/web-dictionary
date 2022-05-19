@@ -25,6 +25,45 @@ class LoginController extends Controller {
   private initializeRoutes = () => {
     this.router.post('/', wrapped(this.login));
     this.router.post('/refresh', wrapped(this.refreshToken));
+    this.router.post('/validate', wrapped(this.validateOtp));
+  };
+
+  private validateOtp: RequestHandler<
+  {},
+  {},
+  { email: string, otp: string }
+  > = async (req, res) => {
+    try {
+      const { email, otp } = req.body;
+
+      const decryptedEmail = Buffer.from(email, 'base64').toString('utf-8');
+
+      const otpDb = await this.otps.getByEmail(decryptedEmail);
+
+      const user = await this.users.getByEmail(decryptedEmail);
+
+      if (!user) return res.status(400).json(errorResponse('400', 'You haven\'t been added to any company yet'));
+
+      const timeNow = Date.now() - (60 * 60 * 1000);
+      const { createdAt } = otpDb;
+
+      if (timeNow > createdAt) return res.status(400).json(errorResponse('400', 'OTP expired'));
+
+      if (otp !== otpDb.otp) return res.status(400).json(errorResponse('400', 'OTP code invalid'));
+
+      const accessToken = this.jwt.createAccessToken(user.id!);
+      const refreshToken = this.jwt.createRefreshToken(user.id!);
+
+      return res.status(200).json(okResponse({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      }));
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        return res.status(400).json(errorResponse('400', e.message));
+      }
+      return res.status(400).json(errorResponse('400', 'Unknown error'));
+    }
   };
 
   private otp: RequestHandler<
