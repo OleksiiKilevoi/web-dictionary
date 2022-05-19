@@ -81,3 +81,12 @@ Authorization: Bearer {{userToken}}
 ### Load CSV
 POST {{baseUrl}}/project/:projectId/load-csv
 Content-Type: multipart/form-data;
+
+### Validate otp
+POST {{{baseUrl}}}/login/validate
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+{
+    "email": "exemple@gmail.com",
+    "otp": "4567",
+}
