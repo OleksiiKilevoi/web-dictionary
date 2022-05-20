@@ -75,7 +75,7 @@ class LoginController extends Controller {
 
     const user = await this.users.getByEmail(email);
 
-    if (!user) return res.status(400).json(errorResponse('400', 'Unauthorized'));
+    if (!user) return res.status(400).json(errorResponse('401', 'Unauthorized'));
 
     const accessToken = this.jwt.createAccessToken(user.id!);
     const refreshToken = this.jwt.createRefreshToken(user.id!);

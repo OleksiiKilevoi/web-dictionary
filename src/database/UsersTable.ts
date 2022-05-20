@@ -3,6 +3,7 @@
 import AbstractTable from 'drizzle-orm/tables/abstractTable';
 import { ExtractModel } from 'drizzle-orm/tables/inferTypes';
 import { z } from 'zod';
+import { roleEnum } from './types';
 
 export type UserModel = ExtractModel<UsersTable>;
 
@@ -10,6 +11,7 @@ export default class UsersTable extends AbstractTable<UsersTable> {
   public id = this.serial('id').primaryKey();
   public name = this.varchar('name').notNull();
   public email = this.varchar('email').notNull().unique();
+  public role = this.type(roleEnum, 'role').notNull().defaultValue('user');
   public deleteCsv = this.bool('deleteCsv').notNull().defaultValue(false);
   public uploadCsv = this.bool('uploadCsv').notNull().defaultValue(false);
   public downloadCsv = this.bool('downloadCsv').notNull().defaultValue(false);

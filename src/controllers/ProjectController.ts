@@ -39,7 +39,20 @@ class ProjectController extends Controller {
     this.router.delete('/:projectId/remove-user/:id', this.protectRoute, wrapped(this.deleteUserFromProject));
     this.router.post('/:id/upload-csv', this.protectRoute, wrapped(this.uploadCsv));
     this.router.get('/:id/download-csv', this.protectRoute, wrapped(this.downloadCsv));
+    // this.router.delete('/:id/delete-csv', this.protectRoute, wrapped(this.deleteCsv));
   };
+
+  // private deleteCsv: RequestHandler<
+  // { id: string }
+  // > = async (req, res) => {
+  //   const { id } = req.params;
+
+  //   const project = await this.projects.getById(id);
+  //   if (!project) return res.status(404).json(errorResponse('404', 'Proj'));
+  //   const { pathToCsv } = project;
+  //   fs.unlinkSync(pathToCsv);
+  // // return
+  // };
 
   private downloadCsv: RequestHandler<
   {id: string},

@@ -21,7 +21,9 @@ class Users {
   public getByEmail = async (email: string) => {
     try {
       const response = await this.usersTable
-        .select().where(eq(this.usersTable.email, email)).findOne();
+        .select()
+        .where(eq(this.usersTable.email, email))
+        .findOne();
       return response;
     } catch (err: unknown) {
       return undefined;
