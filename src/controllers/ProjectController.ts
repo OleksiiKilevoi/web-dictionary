@@ -37,22 +37,27 @@ class ProjectController extends Controller {
     this.router.post('/', this.validate(partialProject), this.protectRoute, this.protectCustomerRoute, wrapped(this.createProject));
     this.router.post('/:id/add-user', this.protectRoute, this.protectCustomerRoute, wrapped(this.addUserToProject));
     this.router.delete('/:projectId/remove-user/:id', this.protectRoute, wrapped(this.deleteUserFromProject));
-    this.router.post('/:id/upload-csv', this.protectRoute, wrapped(this.uploadCsv));
-    this.router.get('/:id/download-csv', this.protectRoute, wrapped(this.downloadCsv));
-    // this.router.delete('/:id/delete-csv', this.protectRoute, wrapped(this.deleteCsv));
+    this.router.post('/:id/upload-csv', this.protectRoute, this.protectUpload, wrapped(this.uploadCsv));
+    this.router.get('/:id/download-csv', this.protectRoute, this.protectDowdload, wrapped(this.downloadCsv));
+    this.router.delete('/:id/delete-csv', this.protectRoute, wrapped(this.deleteCsv));
   };
 
-  // private deleteCsv: RequestHandler<
-  // { id: string }
-  // > = async (req, res) => {
-  //   const { id } = req.params;
+  private deleteCsv: RequestHandler<
+  { id: string }
+  > = async (req, res) => {
+    const { id } = req.params;
 
-  //   const project = await this.projects.getById(id);
-  //   if (!project) return res.status(404).json(errorResponse('404', 'Proj'));
-  //   const { pathToCsv } = project;
-  //   fs.unlinkSync(pathToCsv);
-  // // return
-  // };
+    const project = await this.projects.getById(id);
+    if (!project) return res.status(404).json(errorResponse('404', 'Project with such id was not found'));
+    const { pathToCsv } = project;
+
+    if (!pathToCsv) return res.status(404).json(errorResponse('404', 'Csv for this project was not found'));
+    fs.unlinkSync(pathToCsv);
+
+    await this.projects.deleteCsv(id);
+
+    return res.status(204).json(okResponse());
+  };
 
   private downloadCsv: RequestHandler<
   {id: string},

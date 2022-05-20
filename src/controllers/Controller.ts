@@ -54,7 +54,7 @@ abstract class Controller {
     try {
       const { user } = req;
 
-      if (!Object.values(user!).includes(false)) return res.status(400).json(errorResponse('400', 'Unauthorized'));
+      if (user?.role !== 'customer') return res.status(400).json(errorResponse('400', 'Unauthorized'));
 
       return next();
     } catch (e: unknown) {
@@ -64,6 +64,18 @@ abstract class Controller {
       }
       return internal('Internal error');
     }
+  };
+
+  protected protectUpload: RequestHandler = async (req, res, next) => {
+    const { user } = req;
+    if (!user?.uploadCsv) return res.status(400).json(errorResponse('400', 'Missig permission for upload'));
+    return next();
+  };
+
+  protected protectDowdload: RequestHandler = async (req, res, next) => {
+    const { user } = req;
+    if (!user?.downloadCsv) return res.status(400).json(errorResponse('400', 'Missing permission for download'));
+    return next();
   };
 
   protected validate = (schema: z.ZodTypeAny)

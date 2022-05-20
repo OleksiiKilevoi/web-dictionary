@@ -1,0 +1,175 @@
+{
+  "version": "2",
+  "tables": {
+    "auth_otp": {
+      "name": "auth_otp",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "SERIAL",
+          "primaryKey": true,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "character varying",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "BIGINT",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "otp": {
+          "name": "otp",
+          "type": "character varying",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {}
+    },
+    "projects": {
+      "name": "projects",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "SERIAL",
+          "primaryKey": true,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "character varying",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "path_to_dictionary": {
+          "name": "path_to_dictionary",
+          "type": "character varying",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "path_to_csv": {
+          "name": "path_to_csv",
+          "type": "character varying",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {}
+    },
+    "users_to_project": {
+      "name": "users_to_project",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "SERIAL",
+          "primaryKey": true,
+          "notNull": false
+        },
+        "project_id": {
+          "name": "project_id",
+          "type": "INT",
+          "primaryKey": false,
+          "notNull": true,
+          "references": "users_to_project_project_id_fkey;projects;id;;"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "INT",
+          "primaryKey": false,
+          "notNull": true,
+          "references": "users_to_project_user_id_fkey;users;id;;"
+        }
+      },
+      "indexes": {
+        "users_to_project_project_id_user_id_index": {
+          "name": "users_to_project_project_id_user_id_index",
+          "columns": {
+            "project_id": {
+              "name": "project_id"
+            },
+            "user_id": {
+              "name": "user_id"
+            }
+          },
+          "isUnique": true
+        }
+      }
+    },
+    "users": {
+      "name": "users",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "SERIAL",
+          "primaryKey": true,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "character varying",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "character varying",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "role",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'user'"
+        },
+        "deleteCsv": {
+          "name": "deleteCsv",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "uploadCsv": {
+          "name": "uploadCsv",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "downloadCsv": {
+          "name": "downloadCsv",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {
+        "users_email_index": {
+          "name": "users_email_index",
+          "columns": {
+            "email": {
+              "name": "email"
+            }
+          },
+          "isUnique": true
+        }
+      }
+    }
+  },
+  "enums": {
+    "role": {
+      "name": "role",
+      "values": {
+        "customer": "customer",
+        "user": "user"
+      }
+    }
+  }
+}

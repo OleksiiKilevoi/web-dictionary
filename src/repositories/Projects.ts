@@ -26,6 +26,12 @@ class Projects {
       .set({ pathToDictionary, pathToCsv })
       .findOne();
   };
+
+  public deleteCsv = (id: string | number) => this.projectsTable
+    .update()
+    .where(eq(this.projectsTable.id, Number(id)))
+    .set({ pathToDictionary: undefined, pathToCsv: undefined })
+    .findOne();
 }
 
 export default Projects;
