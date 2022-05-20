@@ -15,12 +15,13 @@ import BotLogger from '@/loggers/BotLogger';
 class UsersController extends Controller {
   public constructor(
     users: Users,
+    usersToProject: UserToProject,
     private projects: Projects,
     private userToProject: UserToProject,
     protected readonly botLogger: BotLogger,
     private UPLOADS_PATH = process.env.UPLOADS_PATH,
   ) {
-    super('/users', users);
+    super('/users', users, userToProject);
 
     this.initializeRoutes();
   }

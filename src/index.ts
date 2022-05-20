@@ -35,11 +35,12 @@ const main = async () => {
   const userToProject = new UserToProject(userToProjectTable);
   const otp = new Otp(otpTable);
 
-  const loginController = new LoginController(users, emailSender, otp);
-  const projectsController = new ProjectController(users,
+  const loginController = new LoginController(users, userToProject, emailSender, otp);
+  const projectsController = new ProjectController(users, userToProject,
     projects, userToProject, emailSender, otp);
   const usersController = new UsersController(
     users,
+    userToProject,
     projects,
     userToProject,
     botLogger,

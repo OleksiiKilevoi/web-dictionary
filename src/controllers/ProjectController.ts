@@ -8,7 +8,6 @@ import { errorResponse, okResponse } from '@/api/baseResponses';
 import Users from '@/repositories/Users';
 import wrapped from '@/utils/Wrapped';
 import { partialProject, ProjectModel } from '@/database/ProjectTable';
-import { UserModel } from '@/database/UsersTable';
 import Projects from '@/repositories/Projects';
 import UserToProject from '@/repositories/UserToProject';
 import fileUpload from 'express-fileupload';
@@ -16,17 +15,19 @@ import convert from '@/utils/MapCsv';
 import EmailSender from '@/utils/EmailSender';
 import { generateProdOtp } from '@/utils/OtpUtils';
 import Otp from '@/repositories/Otp';
+import { UserToProjectModel } from '@/database/UserToProjectTable';
 
 class ProjectController extends Controller {
   public constructor(
     users: Users,
+    usersToProject: UserToProject,
     private projects: Projects,
     private userToProject: UserToProject,
     private emailSender: EmailSender,
     private otp: Otp,
     private UPLOADS_PATH = process.env.UPLOADS_PATH,
   ) {
-    super('/project', users);
+    super('/project', users, userToProject);
 
     this.initializeRoutes();
   }
@@ -39,7 +40,7 @@ class ProjectController extends Controller {
     this.router.delete('/:projectId/remove-user/:id', this.protectRoute, wrapped(this.deleteUserFromProject));
     this.router.post('/:id/upload-csv', this.protectRoute, this.protectUpload, wrapped(this.uploadCsv));
     this.router.get('/:id/download-csv', this.protectRoute, this.protectDowdload, wrapped(this.downloadCsv));
-    this.router.delete('/:id/delete-csv', this.protectRoute, wrapped(this.deleteCsv));
+    this.router.delete('/:id/delete-csv', this.protectRoute, this.deleteCsv, wrapped(this.deleteCsv));
   };
 
   private deleteCsv: RequestHandler<
@@ -72,9 +73,9 @@ class ProjectController extends Controller {
 
     const project = await this.projects.getById(id);
 
-    if (project && project.pathToDictionary) {
+    if (project && project.pathToCsv) {
       // const dictionary = fs.readFileSync(project?.pathToDictionary).toString();
-      return res.status(200).sendFile(project.pathToDictionary, { root: '../' });
+      return res.status(200).sendFile(project.pathToCsv!, { root: '../' });
     }
     return res.status(404).json(errorResponse('404', 'Dictionary for this project was not found'));
   };
@@ -125,36 +126,46 @@ class ProjectController extends Controller {
   private addUserToProject: RequestHandler<
   {id: string},
   {},
-  UserModel
+  {email: string, name: string, deleteCsv: boolean, uploadCsv: boolean, downloadCsv: boolean }
   > = async (req, res) => {
     const { id } = req.params;
-    const { email } = req.body;
+    const {
+      email, name, deleteCsv, uploadCsv, downloadCsv,
+    } = req.body;
 
     const user = await this.users.getByEmail(email);
     const otpCode = generateProdOtp();
     const encryptedEmail = Buffer.from(email).toString('base64');
     const link = `${process.env.FRONT_URL || 'http://localhost:3000'}/opt/${otpCode}/${encryptedEmail}`;
 
-    if (!user) {
-      const newUser = await this.users.create(req.body);
-      try {
-        const userToProject = await this.userToProject
-          .create({ userId: newUser.id!, projectId: Number(id) });
+    const userToProj: UserToProjectModel = {
+      userId: user!.id!,
+      projectId: Number(id),
+      deleteCsv,
+      uploadCsv,
+      downloadCsv,
+    };
+    try {
+      if (!user) {
+        const newUser = await this.users.create({ email, name });
+        userToProj.userId = newUser.id!;
+
+        const userToProject = await this.userToProject.create(userToProj);
         this.otp.create({ email: newUser.email, otp: otpCode, createdAt: Date.now() });
         this.emailSender.sendOtpEmail(newUser.email, link);
+
         return res.status(200).json(okResponse(userToProject));
-      } catch (e) {
-        return res.status(400).json(errorResponse('400', 'User already has access'));
       }
-    }
-    try {
-      const userToProject = await this.userToProject
-        .create({ userId: user.id!, projectId: Number(id) });
-      this.otp.create({ email: user.email, otp: otpCode, createdAt: Date.now() });
+      const response = await this.userToProject.create(userToProj);
       this.emailSender.sendOtpEmail(user.email, link);
-      return res.status(200).json(okResponse(userToProject));
-    } catch (e) {
-      return res.status(400).json(errorResponse('400', 'User already has access'));
+      this.otp.create({ email: user.email, otp: otpCode, createdAt: Date.now() });
+
+      return res.status(200).json(okResponse(response));
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        return res.status(400).json(errorResponse('400', e.message));
+      }
+      return res.status(400).json(errorResponse('400', 'Unknown error'));
     }
   };
 
@@ -184,8 +195,9 @@ class ProjectController extends Controller {
     const usersToProjects = await this.userToProject.getAllByProjectId(project.id!);
 
     const users = await Promise.all(usersToProjects.map(async (bond) => {
-      const organization = await this.users.getById(bond.userId);
-      return organization;
+      const userOnProject = await this.users.getById(bond.userId);
+
+      return { ...bond, ...userOnProject };
     }));
 
     const response = {

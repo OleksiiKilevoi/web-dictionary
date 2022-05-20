@@ -11,6 +11,9 @@ export default class UserToProjectTable extends AbstractTable<UserToProjectTable
   public id = this.serial('id').primaryKey();
   public projectId = this.int('project_id').notNull().foreignKey(ProjectTable, (table) => table.id);
   public userId = this.int('user_id').notNull().foreignKey(UsersTable, (table) => table.id);
+  public deleteCsv = this.bool('deleteCsv').notNull().defaultValue(false);
+  public uploadCsv = this.bool('uploadCsv').notNull().defaultValue(false);
+  public downloadCsv = this.bool('downloadCsv').notNull().defaultValue(false);
 
   public bond = this.uniqueIndex([this.projectId, this.userId]);
 

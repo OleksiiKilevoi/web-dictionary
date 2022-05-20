@@ -4,9 +4,11 @@ import { AbstractTable, ExtractModel } from 'drizzle-orm';
 
 export class OtpsTable extends AbstractTable<OtpsTable> {
   public id = this.serial('id').primaryKey();
-  public email = this.varchar('email').notNull();
+  public email = this.varchar('email').notNull().unique();
   public createdAt = this.bigint('created_at', 'max_bytes_53').notNull();
   public otp = this.varchar('otp').notNull();
+
+  public emailIndex = this.index(this.email);
 
   public tableName(): string {
     return 'auth_otp';

@@ -7,6 +7,7 @@ import FileLogger from '@/loggers/FileLogger';
 import Users from '@/repositories/Users';
 import { internal } from '@hapi/boom';
 import { z } from 'zod';
+import UserToProject from '@/repositories/UserToProject';
 
 abstract class Controller {
   public readonly path: string;
@@ -16,6 +17,7 @@ abstract class Controller {
   public constructor(
     path: string,
     protected readonly users: Users,
+    protected readonly usersToProject: UserToProject,
   ) {
     this.path = path;
     this.router = Router();
@@ -68,13 +70,31 @@ abstract class Controller {
 
   protected protectUpload: RequestHandler = async (req, res, next) => {
     const { user } = req;
-    if (!user?.uploadCsv) return res.status(400).json(errorResponse('400', 'Missig permission for upload'));
+    const { id } = req.params;
+
+    const userToProj = await this.usersToProject.getByUserAndProjectId(user!.id!, id);
+
+    if (!userToProj?.uploadCsv) return res.status(400).json(errorResponse('400', 'Missig permission for upload'));
     return next();
   };
 
   protected protectDowdload: RequestHandler = async (req, res, next) => {
     const { user } = req;
-    if (!user?.downloadCsv) return res.status(400).json(errorResponse('400', 'Missing permission for download'));
+    const { id } = req.params;
+
+    const userToProj = await this.usersToProject.getByUserAndProjectId(user!.id!, id);
+
+    if (!userToProj?.downloadCsv) return res.status(400).json(errorResponse('400', 'Missing permission for download'));
+    return next();
+  };
+
+  protected protectDelete: RequestHandler = async (req, res, next) => {
+    const { user } = req;
+    const { id } = req.params;
+
+    const userToProj = await this.usersToProject.getByUserAndProjectId(user!.id!, id);
+
+    if (!userToProj?.deleteCsv) return res.status(400).json(errorResponse('400', 'Missing permission for delete'));
     return next();
   };
 

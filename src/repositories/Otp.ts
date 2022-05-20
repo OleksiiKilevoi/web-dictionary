@@ -5,7 +5,13 @@ export default class Otp {
   public constructor(private table: OtpsTable) {
   }
 
-  public create = async (otp: OtpModel): Promise<OtpModel> => this.table.insert(otp).findOne();
+  public create = async (otpModel: OtpModel): Promise<OtpModel> => {
+    const { otp } = otpModel;
+    const result = await this.table.insert(otpModel)
+      .onConflict((table) => table.emailIndex, { otp, createdAt: Date.now() })
+      .findOne();
+    return result;
+  };
 
   public getByEmail = async (email: string): Promise<OtpModel | undefined> => {
     try {

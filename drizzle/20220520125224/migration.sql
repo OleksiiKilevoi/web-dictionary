@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX IF NOT EXISTS auth_otp_email_index ON auth_otp ("email");

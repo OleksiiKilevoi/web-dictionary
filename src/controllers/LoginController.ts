@@ -8,15 +8,17 @@ import Users from '@/repositories/Users';
 import wrapped from '@/utils/Wrapped';
 import Otp from '@/repositories/Otp';
 import EmailSender from '@/utils/EmailSender';
+import UserToProject from '@/repositories/UserToProject';
 
 class LoginController extends Controller {
   public constructor(
     users: Users,
+    usersToProject: UserToProject,
     protected readonly emailSender: EmailSender,
     private otps: Otp,
     private UPLOADS_PATH = process.env.UPLOADS_PATH,
   ) {
-    super('/login', users);
+    super('/login', users, usersToProject);
 
     this.initializeRoutes();
   }

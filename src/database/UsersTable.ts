@@ -12,9 +12,6 @@ export default class UsersTable extends AbstractTable<UsersTable> {
   public name = this.varchar('name').notNull();
   public email = this.varchar('email').notNull().unique();
   public role = this.type(roleEnum, 'role').notNull().defaultValue('user');
-  public deleteCsv = this.bool('deleteCsv').notNull().defaultValue(false);
-  public uploadCsv = this.bool('uploadCsv').notNull().defaultValue(false);
-  public downloadCsv = this.bool('downloadCsv').notNull().defaultValue(false);
 
   public tableName(): string {
     return 'users';

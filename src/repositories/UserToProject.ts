@@ -4,8 +4,13 @@ import { and, eq } from 'drizzle-orm';
 class UserToProject {
   public constructor(private userToProjectsTable: UserToProjectTable) {}
 
-  public create = (userToProject: UserToProjectModel) => this.userToProjectsTable
-    .insert(userToProject).all();
+  public create = (userToProject: UserToProjectModel) => {
+    const { deleteCsv, uploadCsv, downloadCsv } = userToProject;
+    return this.userToProjectsTable
+      .insert(userToProject)
+      .onConflict((table) => table.bond, { deleteCsv, uploadCsv, downloadCsv })
+      .all();
+  };
 
   public getAllByUserId = async (userId: string | number) => this.userToProjectsTable
     .select()
