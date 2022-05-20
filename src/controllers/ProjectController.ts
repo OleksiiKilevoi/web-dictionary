@@ -15,6 +15,7 @@ import fileUpload from 'express-fileupload';
 import convert from '@/utils/MapCsv';
 import EmailSender from '@/utils/EmailSender';
 import { generateProdOtp } from '@/utils/OtpUtils';
+import Otp from '@/repositories/Otp';
 
 class ProjectController extends Controller {
   public constructor(
@@ -22,6 +23,7 @@ class ProjectController extends Controller {
     private projects: Projects,
     private userToProject: UserToProject,
     private emailSender: EmailSender,
+    private otp: Otp,
     private UPLOADS_PATH = process.env.UPLOADS_PATH,
   ) {
     super('/project', users);
@@ -54,7 +56,7 @@ class ProjectController extends Controller {
 
     if (project && project.pathToDictionary) {
       // const dictionary = fs.readFileSync(project?.pathToDictionary).toString();
-      return res.status(200).sendFile(project.pathToDictionary, { root: './' });
+      return res.status(200).sendFile(project.pathToDictionary, { root: '../' });
     }
     return res.status(404).json(errorResponse('404', 'Dictionary for this project was not found'));
   };
@@ -108,21 +110,19 @@ class ProjectController extends Controller {
   UserModel
   > = async (req, res) => {
     const { id } = req.params;
-    const {
-      email,
-      permissions,
-      name,
-    } = req.body;
+    const { email } = req.body;
+
     const user = await this.users.getByEmail(email);
     const otpCode = generateProdOtp();
     const encryptedEmail = Buffer.from(email).toString('base64');
     const link = `${process.env.FRONT_URL || 'http://localhost:3000'}/opt/${otpCode}/${encryptedEmail}`;
 
     if (!user) {
-      const newUser = await this.users.create({ email, permissions, name });
+      const newUser = await this.users.create(req.body);
       try {
         const userToProject = await this.userToProject
           .create({ userId: newUser.id!, projectId: Number(id) });
+        this.otp.create({ email: newUser.email, otp: otpCode, createdAt: Date.now() });
         this.emailSender.sendOtpEmail(newUser.email, link);
         return res.status(200).json(okResponse(userToProject));
       } catch (e) {
@@ -132,6 +132,7 @@ class ProjectController extends Controller {
     try {
       const userToProject = await this.userToProject
         .create({ userId: user.id!, projectId: Number(id) });
+      this.otp.create({ email: user.email, otp: otpCode, createdAt: Date.now() });
       this.emailSender.sendOtpEmail(user.email, link);
       return res.status(200).json(okResponse(userToProject));
     } catch (e) {
@@ -177,8 +178,7 @@ class ProjectController extends Controller {
   };
 
   private getDictionary: RequestHandler<
-  {id: string},
-  {}
+  {id: string}
   > = async (req, res) => {
     const { user } = req;
     const { id } = req.params;
@@ -193,7 +193,7 @@ class ProjectController extends Controller {
       const dictionary = fs.readFileSync(project?.pathToDictionary).toString();
       return res.status(200).json(okResponse(JSON.parse(dictionary)));
     }
-    return res.status(404).json(errorResponse('404', 'Dictionary for this project was not found'));
+    return res.status(200).json(okResponse(undefined));
   };
 }
 

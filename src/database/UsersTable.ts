@@ -10,7 +10,9 @@ export default class UsersTable extends AbstractTable<UsersTable> {
   public id = this.serial('id').primaryKey();
   public name = this.varchar('name').notNull();
   public email = this.varchar('email').notNull().unique();
-  public permissions = this.jsonb<string[]>('permissions');
+  public deleteCsv = this.bool('deleteCsv').notNull().defaultValue(false);
+  public uploadCsv = this.bool('uploadCsv').notNull().defaultValue(false);
+  public downloadCsv = this.bool('downloadCsv').notNull().defaultValue(false);
 
   public tableName(): string {
     return 'users';
@@ -21,7 +23,11 @@ const userSchema = z.object({
   id: z.number(),
   name: z.string(),
   email: z.string(),
-  permissions: z.string().array(),
+  deleteCsv: z.boolean(),
+  uploadCsv: z.boolean(),
+  downloadCsv: z.boolean(),
 });
 
-export const createUserSchema = userSchema.partial({ id: true });
+export const createUserSchema = userSchema.partial({
+  id: true, uploadCsv: true, downloadCsv: true, deleteCsv: true,
+});

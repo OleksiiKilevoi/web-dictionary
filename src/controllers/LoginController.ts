@@ -56,8 +56,8 @@ class LoginController extends Controller {
       const refreshToken = this.jwt.createRefreshToken(user.id!);
 
       return res.status(200).json(okResponse({
-        access_token: accessToken,
-        refresh_token: refreshToken,
+        accessToken,
+        refreshToken,
       }));
     } catch (e: unknown) {
       if (e instanceof Error) {

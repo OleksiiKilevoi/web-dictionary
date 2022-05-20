@@ -5,8 +5,8 @@ import Controller from '@/controllers/Controller';
 import Users from '@/repositories/Users';
 import Projects from '@/repositories/Projects';
 import { errorResponse, okResponse } from '@/api/baseResponses';
-import { ExtractModel } from 'drizzle-orm';
-import UsersTable, { createUserSchema } from '@/database/UsersTable';
+
+import { createUserSchema, UserModel } from '@/database/UsersTable';
 import wrapped from '@/utils/Wrapped';
 import UserToProject from '@/repositories/UserToProject';
 
@@ -63,15 +63,9 @@ class UsersController extends Controller {
   private createUser: RequestHandler<
   {},
   {},
-  { name: string, email: string, password: string, permissions: ExtractModel<UsersTable>['permissions']}
+  UserModel
   > = async (req, res) => {
-    const {
-      email, name, permissions,
-    } = req.body;
-
-    const newUser = await this.users.create({
-      email, name, permissions,
-    });
+    const newUser = await this.users.create(req.body);
 
     return res.status(200).json(okResponse(newUser));
   };
