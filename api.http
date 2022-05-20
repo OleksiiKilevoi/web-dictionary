@@ -81,10 +81,17 @@ Authorization: Bearer {{userToken}}
 ### Upload CSV
 POST {{baseUrl}}/project/:projectId/upload-csv
 Content-Type: multipart/form-data;
+Authorization: Bearer {{userToken}}
 
 ### Download CSV
 GET  {{baseUrl}}/project/:projectId/download-csv
 Content-Type: multipart/form-data;
+Authorization: Bearer {{userToken}}
+
+### Delete CSV
+DELETE {{baseUrl}}/project/:projectId/delete-csv
+Content-Type: multipart/form-data;
+Authorization: Bearer {{userToken}}
 
 ### Validate otp
 POST {{{baseUrl}}}/login/validate
