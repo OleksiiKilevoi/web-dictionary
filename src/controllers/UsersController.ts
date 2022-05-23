@@ -19,7 +19,6 @@ class UsersController extends Controller {
     private projects: Projects,
     private userToProject: UserToProject,
     protected readonly botLogger: BotLogger,
-    private UPLOADS_PATH = process.env.UPLOADS_PATH,
   ) {
     super('/users', users, userToProject);
 

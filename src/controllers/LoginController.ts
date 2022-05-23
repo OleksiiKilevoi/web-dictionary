@@ -16,7 +16,6 @@ class LoginController extends Controller {
     usersToProject: UserToProject,
     private authoriser:Authoriser,
     private otps: Otp,
-    private UPLOADS_PATH = process.env.UPLOADS_PATH,
   ) {
     super('/login', users, usersToProject);
 

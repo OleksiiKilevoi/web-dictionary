@@ -148,37 +148,35 @@ class ProjectController extends Controller {
   > = async (req, res) => {
     const { id } = req.params;
     const {
-      email, name, deleteCsv, uploadCsv, downloadCsv,
+      email,
+      name,
+      deleteCsv = false,
+      uploadCsv = false,
+      downloadCsv = false,
     } = req.body;
 
     const user = await this.users.getByEmail(email);
 
     const userToProj: UserToProjectModel = {
-      userId: user!.id!,
+      userId: user?.id!,
       projectId: Number(id),
       deleteCsv,
       uploadCsv,
       downloadCsv,
     };
-    try {
-      if (!user) {
-        const newUser = await this.users.create({ email, name });
-        userToProj.userId = newUser.id!;
+    if (!user) {
+      const newUser = await this.users.create({ email, name, role: 'user' });
 
-        const userToProject = await this.userToProject.create(userToProj);
-        await this.authoriser.invite(email);
+      userToProj.userId = newUser.id!;
 
-        return res.status(200).json(okResponse(userToProject));
-      }
-      const response = await this.userToProject.create(userToProj);
+      const userToProject = await this.userToProject.create(userToProj);
       await this.authoriser.invite(email);
-      return res.status(200).json(okResponse(response));
-    } catch (e: unknown) {
-      if (e instanceof Error) {
-        return res.status(400).json(errorResponse('400', e.message));
-      }
-      return res.status(400).json(errorResponse('400', 'Unknown error'));
+
+      return res.status(200).json(okResponse(userToProject));
     }
+    const response = await this.userToProject.create(userToProj);
+    await this.authoriser.invite(email);
+    return res.status(200).json(okResponse(response));
   };
 
   private createProject: RequestHandler<
@@ -207,10 +205,11 @@ class ProjectController extends Controller {
     const userToProject = await this.userToProject.getByUserAndProjectId(user!.id!, id);
     if (!userToProject) return res.status(400).json(errorResponse('400', 'You have no project yet'));
 
-    const project = await this.projects.getById(id);
-    if (!project) return res.status(400).json(errorResponse('400', 'Project with such id was not found'));
+    const projectFromDb = await this.projects.getById(id);
 
-    const usersToProjects = await this.userToProject.getAllByProjectId(project.id!);
+    if (!projectFromDb) return res.status(400).json(errorResponse('400', 'Project with such id was not found'));
+
+    const usersToProjects = await this.userToProject.getAllByProjectId(projectFromDb.id!);
 
     const users = await Promise.all(usersToProjects.map(async (bond) => {
       const userOnProject = await this.users.getById(bond.userId);
@@ -218,9 +217,20 @@ class ProjectController extends Controller {
       return { ...bond, ...userOnProject };
     }));
 
+    const {
+      pathToCsv,
+      pathToDictionary,
+      ...props
+    } = projectFromDb;
+
+    const projectFront = {
+      pathToCsv: pathToCsv || null,
+      pathToDictionary: pathToDictionary || null,
+      ...props,
+    };
     const response = {
       users,
-      project,
+      project: projectFront,
     };
     return res.status(200).json(okResponse(response));
   };
