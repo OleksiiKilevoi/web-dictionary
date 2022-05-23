@@ -35,10 +35,30 @@ class ProjectController extends Controller {
     this.router.get('/:id/dictionary', this.protectRoute, wrapped(this.getDictionary));
     this.router.post('/', this.validate(partialProject), this.protectRoute, this.protectCustomerRoute, wrapped(this.createProject));
     this.router.post('/:id/add-user', this.protectRoute, this.protectCustomerRoute, wrapped(this.addUserToProject));
+    this.router.put('/:projectId/user/:userId', this.protectRoute, this.protectCustomerRoute, wrapped(this.updatePermissions));
     this.router.delete('/:projectId/remove-user/:id', this.protectRoute, wrapped(this.deleteUserFromProject));
     this.router.post('/:id/upload-csv', this.protectRoute, this.protectUpload, wrapped(this.uploadCsv));
     this.router.get('/:id/download-csv', this.protectRoute, this.protectDowdload, wrapped(this.downloadCsv));
     this.router.delete('/:id/delete-csv', this.protectRoute, this.deleteCsv, wrapped(this.deleteCsv));
+  };
+
+  private updatePermissions: RequestHandler<
+  { projectId: string, userId: string },
+  {},
+  { downloadCsv: boolean, uploadCsv: boolean, deleteCsv: boolean}
+  > = async (req, res) => {
+    const { projectId, userId } = req.params;
+    const { deleteCsv, downloadCsv, uploadCsv } = req.body;
+
+    const userToProject = await this.userToProject.getByUserAndProjectId(userId, projectId);
+    if (!userToProject) return res.status(404).json(errorResponse('404', 'Permissions for users were not found'));
+    userToProject.deleteCsv = deleteCsv;
+    userToProject.downloadCsv = downloadCsv;
+    userToProject.uploadCsv = uploadCsv;
+
+    const updated = await this.userToProject.updatePermissions(userToProject);
+
+    return res.status(200).json(okResponse(updated));
   };
 
   private deleteCsv: RequestHandler<
@@ -169,7 +189,13 @@ class ProjectController extends Controller {
     const { user } = req;
     const newProject = await this.projects.create(req.body);
     await this.userToProject
-      .create({ projectId: newProject.id!, userId: user?.id! });
+      .create({
+        projectId: newProject.id!,
+        userId: user?.id!,
+        downloadCsv: true,
+        deleteCsv: true,
+        uploadCsv: true,
+      });
 
     return res.status(200).json(okResponse(newProject));
   };

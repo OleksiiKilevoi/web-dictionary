@@ -22,6 +22,15 @@ class UserToProject {
     .where(eq(this.userToProjectsTable.projectId, Number(projectId)))
     .all();
 
+  public updatePermissions = async (model:UserToProjectModel) => this.userToProjectsTable
+    .update()
+    .where(and([
+      eq(this.userToProjectsTable.projectId, Number(model.projectId)),
+      eq(this.userToProjectsTable.userId, Number(model.userId)),
+    ]))
+    .set(model)
+    .findOne();
+
   public deleteUserToProjectRelation = async (
     userId: string | number,
     projectId: string | number,
