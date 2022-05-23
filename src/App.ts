@@ -15,7 +15,11 @@ class App {
   private readonly port: number;
   private readonly controllers: Controller[];
 
-  public constructor(controllers: Controller[], port: number) {
+  public constructor(
+    controllers: Controller[],
+    port: number,
+    private UPLOADS_PATH = process.env.UPLOADS_PATH,
+  ) {
     this.app = express();
     this.port = port;
     this.controllers = controllers;
@@ -34,6 +38,7 @@ class App {
   private initializeMiddlewares = () => {
     this.app.use(express.json());
     this.app.use(fileUpload());
+    this.app.use(express.static(this.UPLOADS_PATH || '/storage'));
     this.app.use(
       cors({
         origin: '*',

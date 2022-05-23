@@ -7,14 +7,14 @@ import { errorResponse, okResponse } from '@/api/baseResponses';
 import Users from '@/repositories/Users';
 import wrapped from '@/utils/Wrapped';
 import Otp from '@/repositories/Otp';
-import EmailSender from '@/utils/EmailSender';
 import UserToProject from '@/repositories/UserToProject';
+import Authoriser from '@/utils/Authoriser';
 
 class LoginController extends Controller {
   public constructor(
     users: Users,
     usersToProject: UserToProject,
-    protected readonly emailSender: EmailSender,
+    private authoriser:Authoriser,
     private otps: Otp,
     private UPLOADS_PATH = process.env.UPLOADS_PATH,
   ) {
@@ -79,10 +79,9 @@ class LoginController extends Controller {
 
     if (!user) return res.status(400).json(errorResponse('401', 'Unauthorized'));
 
-    const accessToken = this.jwt.createAccessToken(user.id!);
-    const refreshToken = this.jwt.createRefreshToken(user.id!);
+    await this.authoriser.invite(email);
 
-    return res.status(200).json(okResponse({ accessToken, refreshToken }));
+    return res.status(200).json(okResponse());
   };
 
   private refreshToken: RequestHandler<

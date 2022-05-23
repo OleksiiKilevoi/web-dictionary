@@ -17,13 +17,12 @@ import { OtpsTable } from './database/OtpTable';
 import BotLogger from './loggers/BotLogger';
 import EmailSender from './utils/EmailSender';
 import ProjectController from './controllers/ProjectController';
+import Authoriser from './utils/Authoriser';
 
 const main = async () => {
   const db = await new DbConnector().connectionString(process.env.DB || 'postgresql://postgres:password@host.docker.internal:5433/postgres').connect();
 
   await drizzle.migrator(db).migrate({ migrationFolder: './drizzle' });
-  const botLogger = new BotLogger();
-  const emailSender = new EmailSender(botLogger);
 
   const usersTable = new UsersTable(db);
   const projectsTable = new ProjectTable(db);
@@ -35,9 +34,13 @@ const main = async () => {
   const userToProject = new UserToProject(userToProjectTable);
   const otp = new Otp(otpTable);
 
-  const loginController = new LoginController(users, userToProject, emailSender, otp);
+  const botLogger = new BotLogger();
+  const emailSender = new EmailSender(botLogger);
+  const authorizer = new Authoriser(emailSender, otp, botLogger);
+
+  const loginController = new LoginController(users, userToProject, authorizer, otp);
   const projectsController = new ProjectController(users, userToProject,
-    projects, userToProject, emailSender, otp);
+    projects, userToProject, authorizer);
   const usersController = new UsersController(
     users,
     userToProject,

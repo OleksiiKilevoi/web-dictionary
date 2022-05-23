@@ -12,10 +12,9 @@ import Projects from '@/repositories/Projects';
 import UserToProject from '@/repositories/UserToProject';
 import fileUpload from 'express-fileupload';
 import convert from '@/utils/MapCsv';
-import EmailSender from '@/utils/EmailSender';
-import { generateProdOtp } from '@/utils/OtpUtils';
-import Otp from '@/repositories/Otp';
+
 import { UserToProjectModel } from '@/database/UserToProjectTable';
+import Authoriser from '@/utils/Authoriser';
 
 class ProjectController extends Controller {
   public constructor(
@@ -23,8 +22,7 @@ class ProjectController extends Controller {
     usersToProject: UserToProject,
     private projects: Projects,
     private userToProject: UserToProject,
-    private emailSender: EmailSender,
-    private otp: Otp,
+    private authoriser: Authoriser,
     private UPLOADS_PATH = process.env.UPLOADS_PATH,
   ) {
     super('/project', users, userToProject);
@@ -134,9 +132,6 @@ class ProjectController extends Controller {
     } = req.body;
 
     const user = await this.users.getByEmail(email);
-    const otpCode = generateProdOtp();
-    const encryptedEmail = Buffer.from(email).toString('base64');
-    const link = `${process.env.FRONT_URL || 'http://localhost:3000'}/opt/${otpCode}/${encryptedEmail}`;
 
     const userToProj: UserToProjectModel = {
       userId: user!.id!,
@@ -151,15 +146,12 @@ class ProjectController extends Controller {
         userToProj.userId = newUser.id!;
 
         const userToProject = await this.userToProject.create(userToProj);
-        this.otp.create({ email: newUser.email, otp: otpCode, createdAt: Date.now() });
-        this.emailSender.sendOtpEmail(newUser.email, link);
+        await this.authoriser.invite(email);
 
         return res.status(200).json(okResponse(userToProject));
       }
       const response = await this.userToProject.create(userToProj);
-      this.emailSender.sendOtpEmail(user.email, link);
-      this.otp.create({ email: user.email, otp: otpCode, createdAt: Date.now() });
-
+      await this.authoriser.invite(email);
       return res.status(200).json(okResponse(response));
     } catch (e: unknown) {
       if (e instanceof Error) {
