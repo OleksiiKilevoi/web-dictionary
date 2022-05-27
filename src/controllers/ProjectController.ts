@@ -229,7 +229,7 @@ class ProjectController extends Controller {
       ...props,
     };
     const response = {
-      users,
+      users: users.filter((el) => el.id !== user?.id),
       project: projectFront,
     };
     return res.status(200).json(okResponse(response));
