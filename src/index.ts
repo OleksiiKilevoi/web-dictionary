@@ -55,7 +55,7 @@ const main = async () => {
     projectsController,
   ];
 
-  const port = 5001;
+  const port = 5002;
   const app = new App(controllers, port);
   app.listen();
 
